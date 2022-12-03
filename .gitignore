@@ -1,5 +1,9 @@
+# Matched anywhere
 dist
 node_modules
+
+# Specific matches
+/solutions/js
 
 # Editor files
 .idea
