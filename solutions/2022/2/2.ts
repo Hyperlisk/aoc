@@ -19,9 +19,6 @@ const THROW_MAP = {
   'A': THROWS.ROCK,
   'B': THROWS.PAPER,
   'C': THROWS.SCISSORS,
-  'X': THROWS.ROCK,
-  'Y': THROWS.PAPER,
-  'Z': THROWS.SCISSORS,
 };
 const THROW_VALUES = {
   [THROWS.ROCK]: 1,
@@ -34,29 +31,43 @@ const RESULT_VALUES = {
   draw: 3,
   win: 6,
 };
+const RESULT_MAP = {
+  'X': RESULT_VALUES.loss,
+  'Y': RESULT_VALUES.draw,
+  'Z': RESULT_VALUES.win,
+};
 
 const sum = (numbers: Array<number>) => numbers.reduce((total, n) => total + n, 0);
 
-const gameResult = (opponent: string, me: string) => {
-  const loss = (THROW_MAP[opponent] === THROWS.ROCK && THROW_MAP[me] === THROWS.SCISSORS) ||
-               (THROW_MAP[opponent] === THROWS.PAPER && THROW_MAP[me] === THROWS.ROCK) ||
-               (THROW_MAP[opponent] === THROWS.SCISSORS && THROW_MAP[me] === THROWS.PAPER);
+const gameResult = (opponent: string, requiredOutcome: string) => {
+  const loss = RESULT_MAP[requiredOutcome] === RESULT_VALUES.loss;
   if (loss) {
-    return THROW_VALUES[THROW_MAP[me]] + RESULT_VALUES.loss;
+    const myThrow = THROW_MAP[opponent] === THROWS.ROCK
+                ? THROWS.SCISSORS
+                : THROW_MAP[opponent] === THROWS.PAPER
+                  ? THROWS.ROCK
+                  : THROWS.PAPER;
+    return THROW_VALUES[myThrow] + RESULT_VALUES.loss;
   }
-  const draw = (THROW_MAP[opponent] === THROWS.ROCK && THROW_MAP[me] === THROWS.ROCK) ||
-               (THROW_MAP[opponent] === THROWS.PAPER && THROW_MAP[me] === THROWS.PAPER) ||
-               (THROW_MAP[opponent] === THROWS.SCISSORS && THROW_MAP[me] === THROWS.SCISSORS);
+  const draw = RESULT_MAP[requiredOutcome] === RESULT_VALUES.draw
   if (draw) {
-    return THROW_VALUES[THROW_MAP[me]] + RESULT_VALUES.draw;
+    const myThrow = THROW_MAP[opponent] === THROWS.ROCK
+                ? THROWS.ROCK
+                : THROW_MAP[opponent] === THROWS.PAPER
+                  ? THROWS.PAPER
+                  : THROWS.SCISSORS;
+    return THROW_VALUES[myThrow] + RESULT_VALUES.draw;
   }
-  const win = (THROW_MAP[opponent] === THROWS.ROCK && THROW_MAP[me] === THROWS.PAPER) ||
-              (THROW_MAP[opponent] === THROWS.PAPER && THROW_MAP[me] === THROWS.SCISSORS) ||
-              (THROW_MAP[opponent] === THROWS.SCISSORS && THROW_MAP[me] === THROWS.ROCK);
+  const win = RESULT_MAP[requiredOutcome] === RESULT_VALUES.win;
   if (win) {
-    return THROW_VALUES[THROW_MAP[me]] + RESULT_VALUES.win;
+    const myThrow = THROW_MAP[opponent] === THROWS.ROCK
+                ? THROWS.PAPER
+                : THROW_MAP[opponent] === THROWS.PAPER
+                  ? THROWS.SCISSORS
+                  : THROWS.ROCK;
+    return THROW_VALUES[myThrow] + RESULT_VALUES.win;
   }
-  throw new Error(`Unkown values: [opponent:${opponent}] [me:${me}]`);
+  throw new Error(`Unkown values: [opponent:${opponent}] [requiredOutcome:${requiredOutcome}]`);
 }
 
 function solve(fixedGames: Array<Array<string>>) {
