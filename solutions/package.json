@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
-    "compile": "tsc --moduleResolution node --rootDir ./ --outDir ./js",
-    "solution": "sh run-solution.sh"
+    "compile": "tsc --module es2022 --target es2022 --moduleResolution node --rootDir ./ --outDir ./js",
+    "solution": "pnpm run -r build && sh run-solution.sh"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@Hyperlisk/aoc-lib": "workspace:*"
+    "@Hyperlisk/aoc-lib": "workspace:*",
+    "node-fetch": "^3.3.0"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.2",
