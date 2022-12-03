@@ -4,6 +4,8 @@ import fetch from "node-fetch";
 import * as log from "./log.js";
 import { requireSessionFromEnv } from "./aoc.js";
 
+type DataMapper<T> = (data: string) => T;
+
 export async function fetchProblemInput(year: number, day: number, part: 1 | 2) {
   const cachePath = `js/${year}/${day}/${part}.input.txt`;
   const inputIsCached = await fs.promises.access(cachePath).then(() => true, () => false);
@@ -33,3 +35,13 @@ export async function fetchProblemInput(year: number, day: number, part: 1 | 2) 
 
   return inputData;
 }
+
+export function parse<Result>(inputData: string, dataMapper: DataMapper<Result>, dataSplitter: string): Array<Result> {
+  return inputData.split(dataSplitter).map(data => dataMapper(data));
+}
+
+parse.split = {
+  character: "",
+  group: "\n\n",
+  line: "\n",
+};
