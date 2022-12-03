@@ -36,7 +36,7 @@ export async function fetchProblemInput(year: number, day: number) {
   return inputData;
 }
 
-export function parse<Result>(inputData: string, dataMapper: DataMapper<Result>, dataSplitter: string, dataFilter: (data: string) => boolean = Boolean): Array<Result> {
+export function parse<Result>(inputData: string, dataSplitter: string, dataMapper: DataMapper<Result>, dataFilter: (data: string) => boolean = Boolean): Array<Result> {
   return inputData.split(dataSplitter).filter(data => dataFilter(data)).map(data => dataMapper(data));
 }
 

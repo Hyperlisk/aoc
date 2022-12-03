@@ -3,12 +3,11 @@
 import { array, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2022, 1);
-const data = input.parse<Array<number>>(
+const data = input.parse(
   inputData,
-  (dataGroup: string) => {
-    return input.parse<number>(dataGroup, Number, input.parse.split.line);
-  },
   input.parse.split.group,
+  (dataGroup: string) =>
+    input.parse(dataGroup, input.parse.split.line, Number),
 )
 
 function solve(elves: Array<Array<number>>) {

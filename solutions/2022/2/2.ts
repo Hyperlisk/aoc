@@ -2,12 +2,11 @@
 import { array, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2022, 2);
-const data = input.parse<Array<string>>(
+const data = input.parse(
   inputData,
-  (dataLine: string) => {
-    return input.parse<string>(dataLine, String, input.parse.split.space);
-  },
   input.parse.split.line,
+  (dataLine: string) =>
+    input.parse(dataLine, input.parse.split.space, String),
 );
 
 const THROWS = {
