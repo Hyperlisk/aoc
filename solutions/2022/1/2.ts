@@ -1,6 +1,6 @@
 
 
-import { input, log } from "@Hyperlisk/aoc-lib";
+import { array, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2022, 1);
 const data = input.parse<Array<number>>(
@@ -11,13 +11,11 @@ const data = input.parse<Array<number>>(
   input.parse.split.group,
 )
 
-const sum = (numbers: Array<number>) => numbers.reduce((total, n) => total + n, 0);
-
 function solve(elves: Array<Array<number>>) {
-  const elfCalories = elves.map(sum);
+  const elfCalories = elves.map(array.sum);
   const sortedElfCalories = elfCalories.sort((a, b) => a - b);
   const topElfCalories = sortedElfCalories.splice(-3, 3);
-  return sum(topElfCalories);
+  return array.sum(topElfCalories);
 }
 
 const solution = solve(data);

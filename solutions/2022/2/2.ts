@@ -1,5 +1,5 @@
 
-import { input, log } from "@Hyperlisk/aoc-lib";
+import { array, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2022, 2);
 const data = input.parse<Array<string>>(
@@ -37,8 +37,6 @@ const RESULT_MAP = {
   'Z': RESULT_VALUES.win,
 };
 
-const sum = (numbers: Array<number>) => numbers.reduce((total, n) => total + n, 0);
-
 const gameResult = (opponent: string, requiredOutcome: string) => {
   const loss = RESULT_MAP[requiredOutcome] === RESULT_VALUES.loss;
   if (loss) {
@@ -75,7 +73,7 @@ function solve(fixedGames: Array<Array<string>>) {
     const [opponentThrow, myThrow] = fixedGame;
     return gameResult(opponentThrow, myThrow);
   });
-  return sum(gameResults);
+  return array.sum(gameResults);
 }
 
 const solution = solve(data);
