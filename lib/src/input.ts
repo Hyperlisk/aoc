@@ -6,8 +6,8 @@ import { requireSessionFromEnv } from "./aoc.js";
 
 type DataMapper<T> = (data: string) => T;
 
-export async function fetchProblemInput(year: number, day: number, part: 1 | 2) {
-  const cachePath = `js/${year}/${day}/${part}.input.txt`;
+export async function fetchProblemInput(year: number, day: number) {
+  const cachePath = `js/${year}/${day}/input.txt`;
   const inputIsCached = await fs.promises.access(cachePath).then(() => true, () => false);
   if (inputIsCached) {
     const cachedData = await fs.promises.readFile(cachePath);

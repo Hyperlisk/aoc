@@ -2,7 +2,7 @@
 
 import { input, log } from "@Hyperlisk/aoc-lib";
 
-const inputData = await input.fetchProblemInput(2022, 1, 1);
+const inputData = await input.fetchProblemInput(2022, 1);
 const data = input.parse<Array<number>>(
   inputData,
   (dataGroup: string) => {
