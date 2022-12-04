@@ -35,6 +35,21 @@ export function intersection<T>(first: Array<T>, ...rest: Array<Array<T>>): Arra
   return rest.reduce(intersect2, first);
 };
 
+export function range(start: number, end: number, inclusive: boolean = false): Array<number> {
+  const result = [];
+  for(let i = start;i < end;i++) {
+    result.push(i);
+  }
+  if (inclusive) {
+    result.push(end);
+  }
+  return result;
+}
+
+range.inclusive = function rangeInclusive(start: number, end: number) {
+  return range(start, end, true);
+}
+
 export function sum(input: Array<number>): number {
   return input.reduce((total, n) => total + n, 0);
 };
