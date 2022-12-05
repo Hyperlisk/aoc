@@ -6,9 +6,10 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "build-deps": "pnpm -r --filter '@Hyperlisk/aoc-lib' run build",
     "compile": "tsc --module es2022 --target es2022 --moduleResolution node --rootDir ./ --outDir ./js",
-    "solution": "pnpm run -r build && sh run-solution.sh",
-    "test": "pnpm -r --filter '@Hyperlisk/aoc-lib' build && pnpm run build && NODE_OPTIONS=--experimental-vm-modules jest"
+    "solution": "pnpm run build-deps && sh run-solution.sh",
+    "test": "pnpm run build-deps && pnpm run build && NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "keywords": [],
   "author": "",
