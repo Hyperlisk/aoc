@@ -5,9 +5,10 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "pnpm run build-deps && tsc",
     "build-deps": "pnpm -r --filter '@Hyperlisk/aoc-lib' run build",
     "compile": "tsc --module es2022 --target es2022 --moduleResolution node --rootDir ./ --outDir ./js",
+    "debug": "pnpm run build && node",
     "solution": "pnpm run build-deps && sh run-solution.sh",
     "test": "pnpm run build-deps && pnpm run build && NODE_OPTIONS=--experimental-vm-modules jest"
   },
