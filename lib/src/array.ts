@@ -1,3 +1,6 @@
+
+import * as log from "./log.js";
+
 type _ZERO = 0;
 type _ONE = 1;
 type _TWO = 2;
@@ -88,6 +91,7 @@ function virtualRangeIterator(virtualRange, start, length): VirtualRangeIterator
   return iterator;
 }
 
+const loggedStacks: Set<string> = new Set();
 export function virtualRange(start: number, end: number, inclusive: boolean = false): Array<number> {
   const length = end - start + (inclusive ? 1 : 0)
   const proxyHandler = ((shim: null | Array<number>, loggedMethods: Set<string> = new Set()) => ({
@@ -108,6 +112,14 @@ export function virtualRange(start: number, end: number, inclusive: boolean = fa
       }
       if (shim === null) {
         shim = Array.from(receiver);
+      }
+      try {
+        throw new Error(`Using array shim for "VirtualRange.${property}". This will probably impact performace.`);
+      } catch (e) {
+        if (!loggedStacks.has(e.stack)) {
+          log.error(e);
+          loggedStacks.add(e.stack);
+        }
       }
       return target[property].bind(shim);
     },
