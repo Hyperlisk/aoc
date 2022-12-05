@@ -13,10 +13,16 @@ function solve(rangesList: Array<Array<Array<number>>>) {
   let result = 0;
   rangesList.forEach(ranges => {
     const [rangeOnePoints, rangeTwoPoints] = ranges;
-    const rangeOne = array.range.inclusive(rangeOnePoints[0], rangeOnePoints[1]);
-    const rangeTwo = array.range.inclusive(rangeTwoPoints[0], rangeTwoPoints[1]);
-    const intersection = array.intersection(rangeOne, rangeTwo);
-    if (intersection.length > 0) {
+    const rangeOne = array.virtualRange.inclusive(rangeOnePoints[0], rangeOnePoints[1]);
+    const [rangeOneStart, rangeOneEnd] = [rangeOne[0], rangeOne[rangeOne.length - 1]];
+    const rangeTwo = array.virtualRange.inclusive(rangeTwoPoints[0], rangeTwoPoints[1]);
+    const [rangeTwoStart, rangeTwoEnd] = [rangeTwo[0], rangeTwo[rangeTwo.length - 1]];
+    const hasAnyOverlap =
+      (rangeOneStart >= rangeTwoStart && rangeOneStart <= rangeTwoEnd) ||
+      (rangeOneEnd >= rangeTwoStart && rangeOneEnd <= rangeTwoEnd) ||
+      (rangeTwoStart >= rangeOneStart && rangeTwoStart <= rangeOneEnd) ||
+      (rangeTwoEnd >= rangeOneStart && rangeTwoEnd <= rangeOneEnd);
+    if (hasAnyOverlap) {
       result += 1;
     }
   });
