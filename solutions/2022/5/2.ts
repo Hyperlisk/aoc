@@ -39,8 +39,8 @@ function executeInstruction(stacks: Array<Stack>, amount: number, from: number, 
   // Skip bounds checking because I don't want to write it and AoC does not require it in my experience.
   // The items we need to take are in the front of the array representing a stack.
   // Copy the first `amount` items from the `from` stack over to the front of the `to` stack.
-  // Since the moves need to be executed in-order, the resulting items in the `to` stack are in the reverse order compared to the `from` stack.
-  const indices = array.range(0, amount, { reverse: true });
+  // No need to reverse, since the moves happen at the same time.
+  const indices = array.range(0, amount);
   stacks[to].unshift(...indices.map(idx => stacks[from][idx]));
   // Remove those items from the `from` stack.
   stacks[from] = stacks[from].slice(amount);
