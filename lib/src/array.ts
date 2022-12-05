@@ -38,19 +38,42 @@ export function intersection<T>(first: Array<T>, ...rest: Array<Array<T>>): Arra
   return rest.reduce(intersect2, first);
 };
 
-export function range(start: number, end: number, inclusive: boolean = false): Array<number> {
+type RangeOptions = {
+  inclusive?: boolean,
+  reverse?: boolean,
+};
+
+export function range(start: number, end: number, options?: RangeOptions): Array<number> {
+  const { inclusive, reverse } = {
+    // Default options
+    reverse: false,
+    // Override with user-specified options.
+    ...options,
+  };
   const result = [];
-  for(let i = start;i < end;i++) {
-    result.push(i);
-  }
-  if (inclusive) {
-    result.push(end);
+  if (reverse) {
+    if (inclusive) {
+      result.push(end);
+    }
+    for(let i = end;--i >= 0;) {
+      result.push(i);
+    }
+  } else {
+    for(let i = start;i < end;i++) {
+      result.push(i);
+    }
+    if (inclusive) {
+      result.push(end);
+    }
   }
   return result;
 }
 
-range.inclusive = function rangeInclusive(start: number, end: number) {
-  return range(start, end, true);
+range.inclusive = function rangeInclusive(start: number, end: number, options: Exclude<RangeOptions, 'inclusive'>) {
+  return range(start, end, {
+    inclusive: true,
+    ...options,
+  });
 };
 
 export function sum(input: Array<number>): number {
@@ -130,3 +153,17 @@ export function virtualRange(start: number, end: number, inclusive: boolean = fa
 virtualRange.inclusive = function rangeInclusive(start: number, end: number) {
   return virtualRange(start, end, true);
 };
+
+export function zip<T>(...arrays: Array<Array<T>>): Array<Array<T>> {
+  const [first, ...additionalArrays] = arrays;
+  const results: Array<Array<T>> = first.map(firstItem => [firstItem]);
+  additionalArrays.forEach(additionalArray => {
+    if (additionalArray.length !== first.length) {
+      throw new Error(`Can not zip arrays with different length: ${additionalArray.length} !== ${first.length}`);
+    }
+    additionalArray.forEach((item, resultIdx) => {
+      results[resultIdx].push(item);
+    });
+  });
+  return results;
+}
