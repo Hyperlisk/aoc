@@ -56,6 +56,9 @@ export function array<T>(generator: (index: number) => T, length: number) {
       if (typeof target[property] !== "function") {
         throw new Error(`Not sure how to handle this property yet: ${property}`);
       }
+      if (property === "map") {
+        return (itemGenerator) => array((idx) => itemGenerator(receiver[idx]), length);
+      }
       if (shim === null) {
         try {
           throw new Error(`Using array shim for "Virtual.${property}". This will probably impact performace.`);
