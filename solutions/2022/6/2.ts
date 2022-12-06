@@ -1,33 +1,25 @@
 
 import { array, input, log, string } from "@Hyperlisk/aoc-lib";
 
-const inputData = await input.fetchProblemInput(2022, 6);
+type InputType = Array<string>;
 
-function solve(input: string) {
-  const window = [];
-  const windowSeenCount = {};
+const inputData = await input.fetchProblemInput(2022, 6);
+const parsedInput: InputType = input.parse(inputData, input.parse.split.character, String);
+
+const WINDOW_SIZE = 14;
+
+function solve(input: InputType) {
   let windowUniqueCount = 0;
-  for (let i = 0;i < input.length;i++) {
-    if (window.length === 14) {
-      const [el] = window.splice(0, 1);
-      windowSeenCount[el] -= 1;
-      if (windowSeenCount[el] === 0) {
-        delete windowSeenCount[el];
-        windowUniqueCount -= 1;
-      }
-    }
-    const el = input[i];
-    window.push(el);
-    windowUniqueCount += (el in windowSeenCount) ? 0 : 1;
-    windowSeenCount[el] = (windowSeenCount[el] || 0) + 1;
-    if (window.length < 14) {
-      continue;
-    }
-    if (windowUniqueCount === 14) {
-      return i + 1;
+
+  const windows = array.window(input, WINDOW_SIZE);
+  for (let windowIdx = 0;windowIdx < windows.length;windowIdx++) {
+    const windowSet = new Set(windows[windowIdx]);
+    if (windowSet.size === WINDOW_SIZE) {
+      return WINDOW_SIZE + windowIdx;
     }
   }
+
+  throw new Error("Could not find a window with all unique characters.");
 }
 
-const solution = solve(inputData);
-log.write(solution);
+log.write(solve(parsedInput));

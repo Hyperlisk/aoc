@@ -80,32 +80,32 @@ export function sum(input: Array<number>): number {
   return input.reduce((total, n) => total + n, 0);
 };
 
-type VirtualRangeIteratorResult = {
+type VirtualIteratorResult<T> = {
   done: boolean,
-  value?: number,
+  value?: T,
 };
-type VirtualRangeIterator =
+type VirtualIterator<T> =
   () => {
-    [Symbol.iterator](): VirtualRangeIterator;
-    next(): VirtualRangeIteratorResult;
+    [Symbol.iterator](): VirtualIterator<T>;
+    next(): VirtualIteratorResult<T>;
   };
 
-function virtualRangeIterator(virtualRange, start, length): VirtualRangeIterator {
-  let numbersEmitted = 0;
+function virtualIterator<T>(generator, length): VirtualIterator<T> {
+  let valuesEmitted = 0;
   function iterator() {
     return {
-      [Symbol.iterator](): VirtualRangeIterator {
+      [Symbol.iterator](): VirtualIterator<T> {
         return iterator;
       },
-      next(): VirtualRangeIteratorResult {
-        if (numbersEmitted === length) {
+      next(): VirtualIteratorResult<T> {
+        if (valuesEmitted === length) {
           return {
             value: undefined,
             done: true,
           };
         }
         return {
-          value: start + numbersEmitted++,
+          value: generator(valuesEmitted++),
           done: false,
         };
       },
@@ -115,18 +115,17 @@ function virtualRangeIterator(virtualRange, start, length): VirtualRangeIterator
 }
 
 const loggedStacks: Set<string> = new Set();
-export function virtualRange(start: number, end: number, inclusive: boolean = false): Array<number> {
-  const length = end - start + (inclusive ? 1 : 0)
-  const proxyHandler = ((shim: null | Array<number>, loggedMethods: Set<string> = new Set()) => ({
+export function virtual<T>(generator: (index: number) => T, length: number) {
+  const proxyHandler = ((shim: null | Array<T>, loggedMethods: Set<string> = new Set()) => ({
     get(target, property, receiver) {
       if (property === "length") {
         return length;
       }
       if (typeof property === "string" && property.match(/^(0|[1-9][0-9]*)$/)) {
         const propertyAsNumber = parseInt(property, 10);
-        return start + propertyAsNumber;
+        return generator(propertyAsNumber);
       }
-      const valuesIterator = virtualRangeIterator(receiver, start, length);
+      const valuesIterator = virtualIterator(generator, length);
       if (property === Symbol.iterator) {
         return valuesIterator;
       }
@@ -134,10 +133,13 @@ export function virtualRange(start: number, end: number, inclusive: boolean = fa
         throw new Error(`Not sure how to handle this property yet: ${property}`);
       }
       if (shim === null) {
-        shim = Array.from(receiver);
+        shim = [];
+        for (let idx = 0;idx < length;idx++) {
+          shim.push(generator(idx));
+        }
       }
       try {
-        throw new Error(`Using array shim for "VirtualRange.${property}". This will probably impact performace.`);
+        throw new Error(`Using array shim for "Virtual.${property}". This will probably impact performace.`);
       } catch (e) {
         if (!loggedStacks.has(e.stack)) {
           log.error(e);
@@ -148,6 +150,11 @@ export function virtualRange(start: number, end: number, inclusive: boolean = fa
     },
   }))(null);
   return new Proxy([], proxyHandler);
+};
+
+export function virtualRange(start: number, end: number, inclusive: boolean = false): Array<number> {
+  const length = end - start + (inclusive ? 1 : 0)
+  return virtual((idx) => start + idx, length);
 }
 
 virtualRange.inclusive = function rangeInclusive(start: number, end: number) {
@@ -167,3 +174,17 @@ export function zip<T>(...arrays: Array<Array<T>>): Array<Array<T>> {
   });
   return results;
 }
+
+type ArrayWithLength<T, Length extends number> = Array<T> & { length: Length };
+
+export function window<T, Length extends number>(input: Array<T>, windowSize: Length): Array<ArrayWithLength<T, Length>> {
+  return virtual<T>(
+    (windowIdx) => {
+      if (windowIdx < 0 || windowIdx >= input.length - windowSize) {
+        return undefined;
+      }
+      return virtual<T>((windowItemIdx) => input[windowIdx + windowItemIdx], windowSize);//input.slice(idx, idx + windowSize);
+    },
+    input.length - windowSize + 1,
+  );
+};
