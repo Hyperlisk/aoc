@@ -8,7 +8,7 @@ function solve(input: string) {
   const windowSeenCount = {};
   let windowUniqueCount = 0;
   for (let i = 0;i < input.length;i++) {
-    if (window.length === 4) {
+    if (window.length === 14) {
       const [el] = window.splice(0, 1);
       windowSeenCount[el] -= 1;
       if (windowSeenCount[el] === 0) {
@@ -20,10 +20,10 @@ function solve(input: string) {
     window.push(el);
     windowUniqueCount += (el in windowSeenCount) ? 0 : 1;
     windowSeenCount[el] = (windowSeenCount[el] || 0) + 1;
-    if (window.length < 4) {
+    if (window.length < 14) {
       continue;
     }
-    if (windowUniqueCount === 4) {
+    if (windowUniqueCount === 14) {
       return i + 1;
     }
   }
