@@ -14,7 +14,7 @@ const THROWS = {
   PAPER: 'paper',
   SCISSORS: 'scissors',
 };
-const THROW_MAP = {
+const THROW_MAP: Record<string, string> = {
   'A': THROWS.ROCK,
   'B': THROWS.PAPER,
   'C': THROWS.SCISSORS,
@@ -30,7 +30,7 @@ const RESULT_VALUES = {
   draw: 3,
   win: 6,
 };
-const RESULT_MAP = {
+const RESULT_MAP: Record<string, number> = {
   'X': RESULT_VALUES.loss,
   'Y': RESULT_VALUES.draw,
   'Z': RESULT_VALUES.win,

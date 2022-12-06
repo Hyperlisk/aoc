@@ -14,7 +14,7 @@ const THROWS = {
   PAPER: 'paper',
   SCISSORS: 'scissors',
 };
-const THROW_MAP = {
+const THROW_MAP: Record<string, string> = {
   'A': THROWS.ROCK,
   'B': THROWS.PAPER,
   'C': THROWS.SCISSORS,
