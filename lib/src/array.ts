@@ -50,21 +50,12 @@ export function range(start: number, end: number, options?: RangeOptions): Array
     // Override with user-specified options.
     ...options,
   };
+  const length = end - start + (inclusive ? 1 : 0)
   const result = [];
   if (reverse) {
-    if (inclusive) {
-      result.push(end);
-    }
-    for(let i = end;--i >= 0;) {
-      result.push(i);
-    }
+    return virtual.array((idx) => start + length - idx - 1, length);
   } else {
-    for(let i = start;i < end;i++) {
-      result.push(i);
-    }
-    if (inclusive) {
-      result.push(end);
-    }
+    return virtual.array((idx) => start + idx, length);
   }
   return result;
 }
