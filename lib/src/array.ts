@@ -40,24 +40,15 @@ export function intersection<T>(first: Array<T>, ...rest: Array<Array<T>>): Arra
 
 type RangeOptions = {
   inclusive?: boolean,
-  reverse?: boolean,
 };
 
 export function range(start: number, end: number, options?: RangeOptions): Array<number> {
-  const { inclusive, reverse } = {
-    // Default options
-    reverse: false,
+  const { inclusive } = {
     // Override with user-specified options.
     ...options,
   };
   const length = end - start + (inclusive ? 1 : 0)
-  const result = [];
-  if (reverse) {
-    return virtual.array((idx) => start + length - idx - 1, length);
-  } else {
-    return virtual.array((idx) => start + idx, length);
-  }
-  return result;
+  return virtual.array((idx) => start + idx, length);
 }
 
 range.inclusive = function rangeInclusive(start: number, end: number, options: Exclude<RangeOptions, 'inclusive'>) {
@@ -67,19 +58,12 @@ range.inclusive = function rangeInclusive(start: number, end: number, options: E
   });
 };
 
-export function sum(input: Array<number>): number {
-  return input.reduce((total, n) => total + n, 0);
-};
-
-;
-
-export function virtualRange(start: number, end: number, inclusive: boolean = false): Array<number> {
-  const length = end - start + (inclusive ? 1 : 0)
-  return virtual.array((idx) => start + idx, length);
+export function reverse<T>(input: Array<T>): Array<T> {
+  return virtual.array((idx) => input[input.length - idx - 1], input.length);
 }
 
-virtualRange.inclusive = function rangeInclusive(start: number, end: number) {
-  return virtualRange(start, end, true);
+export function sum(input: Array<number>): number {
+  return input.reduce((total, n) => total + n, 0);
 };
 
 export function zip<T>(...arrays: Array<Array<T>>): Array<Array<T>> {

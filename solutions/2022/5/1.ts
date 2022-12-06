@@ -40,7 +40,7 @@ function executeInstruction(stacks: Array<Stack>, amount: number, from: number, 
   // The items we need to take are in the front of the array representing a stack.
   // Copy the first `amount` items from the `from` stack over to the front of the `to` stack.
   // Since the moves need to be executed in-order, the resulting items in the `to` stack are in the reverse order compared to the `from` stack.
-  const indices = array.range(0, amount, { reverse: true });
+  const indices = array.reverse(array.range(0, amount));
   stacks[to].unshift(...indices.map(idx => stacks[from][idx]));
   // Remove those items from the `from` stack.
   stacks[from] = stacks[from].slice(amount);
