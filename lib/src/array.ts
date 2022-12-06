@@ -1,5 +1,5 @@
 
-import * as log from "./log.js";
+import * as virtual from "./virtual";
 
 type _ZERO = 0;
 type _ONE = 1;
@@ -80,81 +80,11 @@ export function sum(input: Array<number>): number {
   return input.reduce((total, n) => total + n, 0);
 };
 
-type VirtualIteratorResult<T> = {
-  done: boolean,
-  value?: T,
-};
-type VirtualIterator<T> =
-  () => {
-    [Symbol.iterator](): VirtualIterator<T>;
-    next(): VirtualIteratorResult<T>;
-  };
-
-function virtualIterator<T>(generator, length): VirtualIterator<T> {
-  let valuesEmitted = 0;
-  function iterator() {
-    return {
-      [Symbol.iterator](): VirtualIterator<T> {
-        return iterator;
-      },
-      next(): VirtualIteratorResult<T> {
-        if (valuesEmitted === length) {
-          return {
-            value: undefined,
-            done: true,
-          };
-        }
-        return {
-          value: generator(valuesEmitted++),
-          done: false,
-        };
-      },
-    };
-  };
-  return iterator;
-}
-
-const loggedStacks: Set<string> = new Set();
-export function virtual<T>(generator: (index: number) => T, length: number) {
-  const proxyHandler = ((shim: null | Array<T>, loggedMethods: Set<string> = new Set()) => ({
-    get(target, property, receiver) {
-      if (property === "length") {
-        return length;
-      }
-      if (typeof property === "string" && property.match(/^(0|[1-9][0-9]*)$/)) {
-        const propertyAsNumber = parseInt(property, 10);
-        return generator(propertyAsNumber);
-      }
-      const valuesIterator = virtualIterator(generator, length);
-      if (property === Symbol.iterator) {
-        return valuesIterator;
-      }
-      if (typeof target[property] !== "function") {
-        throw new Error(`Not sure how to handle this property yet: ${property}`);
-      }
-      if (shim === null) {
-        shim = [];
-        for (let idx = 0;idx < length;idx++) {
-          shim.push(generator(idx));
-        }
-      }
-      try {
-        throw new Error(`Using array shim for "Virtual.${property}". This will probably impact performace.`);
-      } catch (e) {
-        if (!loggedStacks.has(e.stack)) {
-          log.error(e);
-          loggedStacks.add(e.stack);
-        }
-      }
-      return target[property].bind(shim);
-    },
-  }))(null);
-  return new Proxy([], proxyHandler);
-};
+;
 
 export function virtualRange(start: number, end: number, inclusive: boolean = false): Array<number> {
   const length = end - start + (inclusive ? 1 : 0)
-  return virtual((idx) => start + idx, length);
+  return virtual.array((idx) => start + idx, length);
 }
 
 virtualRange.inclusive = function rangeInclusive(start: number, end: number) {
@@ -178,12 +108,12 @@ export function zip<T>(...arrays: Array<Array<T>>): Array<Array<T>> {
 type ArrayWithLength<T, Length extends number> = Array<T> & { length: Length };
 
 export function window<T, Length extends number>(input: Array<T>, windowSize: Length): Array<ArrayWithLength<T, Length>> {
-  return virtual<T>(
+  return virtual.array<T>(
     (windowIdx) => {
       if (windowIdx < 0 || windowIdx >= input.length - windowSize) {
         return undefined;
       }
-      return virtual<T>((windowItemIdx) => input[windowIdx + windowItemIdx], windowSize);//input.slice(idx, idx + windowSize);
+      return virtual.array<T>((windowItemIdx) => input[windowIdx + windowItemIdx], windowSize);//input.slice(idx, idx + windowSize);
     },
     input.length - windowSize + 1,
   );
