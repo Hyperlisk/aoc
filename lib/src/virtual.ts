@@ -57,17 +57,17 @@ export function array<T>(generator: (index: number) => T, length: number) {
         throw new Error(`Not sure how to handle this property yet: ${property}`);
       }
       if (shim === null) {
+        try {
+          throw new Error(`Using array shim for "Virtual.${property}". This will probably impact performace.`);
+        } catch (e) {
+          if (!loggedStacks.has(e.stack)) {
+            log.error(e);
+            loggedStacks.add(e.stack);
+          }
+        }
         shim = [];
         for (let idx = 0; idx < length; idx++) {
           shim.push(generator(idx));
-        }
-      }
-      try {
-        throw new Error(`Using array shim for "Virtual.${property}". This will probably impact performace.`);
-      } catch (e) {
-        if (!loggedStacks.has(e.stack)) {
-          log.error(e);
-          loggedStacks.add(e.stack);
         }
       }
       return target[property].bind(shim);
