@@ -1,5 +1,5 @@
 
-import * as virtual from "./virtual";
+import * as virtual from "./virtual.js";
 
 type _ZERO = 0;
 type _ONE = 1;

@@ -1,5 +1,5 @@
 
-import * as log from "./log";
+import * as log from "./log.js";
 
 type VirtualArrayIteratorResult<T> = {
   done: boolean,
