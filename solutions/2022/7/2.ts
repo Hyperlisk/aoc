@@ -14,7 +14,8 @@ function solve(input: InputType) {
   let command: null | string = null;
   let currentDirectory: null | string = null;
   const fs: Record<string, number> = {};
-  const maxSize = 100000;
+  const totalSize = 70000000;
+  const requiredSize = 30000000;
   const results = new Set<string>();
   for (const line of input) {
     if (line[0] === '$') {
@@ -45,12 +46,13 @@ function solve(input: InputType) {
       }
     }
   }
+  let minMatchingSize = Infinity;
   for (const directory of Object.keys(fs)) {
-    if (fs[directory] <= maxSize) {
-      results.add(directory);
+    if (fs[directory] >= requiredSize - (totalSize - fs['/']) && fs[directory] <= minMatchingSize) {
+      minMatchingSize = fs[directory];
     }
   }
-  return array.sum(Array.from(results.keys()).map(key => fs[key]));
+  return minMatchingSize;
 }
 
 log.write(solve(parsedInput));
