@@ -40,35 +40,35 @@ const gameResult = (opponent: string, requiredOutcome: string) => {
   const loss = RESULT_MAP[requiredOutcome] === RESULT_VALUES.loss;
   if (loss) {
     const myThrow = THROW_MAP[opponent] === THROWS.ROCK
-                ? THROWS.SCISSORS
-                : THROW_MAP[opponent] === THROWS.PAPER
-                  ? THROWS.ROCK
-                  : THROWS.PAPER;
+      ? THROWS.SCISSORS
+      : THROW_MAP[opponent] === THROWS.PAPER
+        ? THROWS.ROCK
+        : THROWS.PAPER;
     return THROW_VALUES[myThrow] + RESULT_VALUES.loss;
   }
-  const draw = RESULT_MAP[requiredOutcome] === RESULT_VALUES.draw
+  const draw = RESULT_MAP[requiredOutcome] === RESULT_VALUES.draw;
   if (draw) {
     const myThrow = THROW_MAP[opponent] === THROWS.ROCK
-                ? THROWS.ROCK
-                : THROW_MAP[opponent] === THROWS.PAPER
-                  ? THROWS.PAPER
-                  : THROWS.SCISSORS;
+      ? THROWS.ROCK
+      : THROW_MAP[opponent] === THROWS.PAPER
+        ? THROWS.PAPER
+        : THROWS.SCISSORS;
     return THROW_VALUES[myThrow] + RESULT_VALUES.draw;
   }
   const win = RESULT_MAP[requiredOutcome] === RESULT_VALUES.win;
   if (win) {
     const myThrow = THROW_MAP[opponent] === THROWS.ROCK
-                ? THROWS.PAPER
-                : THROW_MAP[opponent] === THROWS.PAPER
-                  ? THROWS.SCISSORS
-                  : THROWS.ROCK;
+      ? THROWS.PAPER
+      : THROW_MAP[opponent] === THROWS.PAPER
+        ? THROWS.SCISSORS
+        : THROWS.ROCK;
     return THROW_VALUES[myThrow] + RESULT_VALUES.win;
   }
   throw new Error(`Unkown values: [opponent:${opponent}] [requiredOutcome:${requiredOutcome}]`);
-}
+};
 
 function solve(fixedGames: Array<Array<string>>) {
-  const gameResults = fixedGames.map((fixedGame, i) => {
+  const gameResults = fixedGames.map((fixedGame) => {
     const [opponentThrow, myThrow] = fixedGame;
     return gameResult(opponentThrow, myThrow);
   });

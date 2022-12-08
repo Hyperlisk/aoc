@@ -1,5 +1,5 @@
 
-import { array, input, log, string, virtual } from "@Hyperlisk/aoc-lib";
+import { input, log, virtual } from "@Hyperlisk/aoc-lib";
 
 type InputType = Array<Array<string>>;
 
@@ -16,7 +16,6 @@ function solve(input: InputType) {
   const fs: Record<string, number> = {};
   const totalSize = 70000000;
   const requiredSize = 30000000;
-  const results = new Set<string>();
   for (const line of input) {
     if (line[0] === '$') {
       command = line[1];

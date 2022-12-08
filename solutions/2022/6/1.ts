@@ -1,5 +1,5 @@
 
-import { array, input, log, string } from "@Hyperlisk/aoc-lib";
+import { array, input, log } from "@Hyperlisk/aoc-lib";
 
 type InputType = Array<string>;
 
@@ -9,8 +9,6 @@ const parsedInput: InputType = input.parse(inputData, input.parse.split.characte
 const WINDOW_SIZE = 4;
 
 function solve(input: InputType) {
-  let windowUniqueCount = 0;
-
   const windows = array.window(input, WINDOW_SIZE);
   for (let windowIdx = 0;windowIdx < windows.length;windowIdx++) {
     const windowSet = new Set(windows[windowIdx]);

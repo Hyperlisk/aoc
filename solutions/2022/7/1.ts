@@ -1,5 +1,5 @@
 
-import { array, input, log, string, virtual } from "@Hyperlisk/aoc-lib";
+import { array, input, log, virtual } from "@Hyperlisk/aoc-lib";
 
 type InputType = Array<Array<string>>;
 
@@ -50,7 +50,7 @@ function solve(input: InputType) {
       results.add(directory);
     }
   }
-  return array.sum(Array.from(results.keys()).map(key => fs[key]));
+  return array.sum(Array.from(results.keys()).map((key) => fs[key]));
 }
 
 log.write(solve(parsedInput));

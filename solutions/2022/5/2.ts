@@ -18,7 +18,7 @@ const stacks: Array<Stack> =
     .map(
       (stack) =>
         stack
-          .map(stackItem => stackItem.replace(/[^A-Z]/g, ''))
+          .map((stackItem) => stackItem.replace(/[^A-Z]/g, ''))
           .filter(Boolean)
     );
 const instructions: Array<Instruction> = input.parse(
@@ -32,7 +32,7 @@ const instructions: Array<Instruction> = input.parse(
     const instruction: Instruction = [parsedLine[1], parsedLine[3], parsedLine[5]];
     return instruction;
   },
-)
+);
 
 function executeInstruction(stacks: Array<Stack>, amount: number, from: number, to: number) {
   // We execute the instructions on the stacks in-place.
@@ -41,7 +41,7 @@ function executeInstruction(stacks: Array<Stack>, amount: number, from: number, 
   // Copy the first `amount` items from the `from` stack over to the front of the `to` stack.
   // No need to reverse, since the moves happen at the same time.
   const indices = array.range(0, amount);
-  stacks[to].unshift(...indices.map(idx => stacks[from][idx]));
+  stacks[to].unshift(...indices.map((idx) => stacks[from][idx]));
   // Remove those items from the `from` stack.
   stacks[from] = stacks[from].slice(amount);
 }
@@ -53,8 +53,8 @@ function solve(stacks: Array<Stack>, instructions: Array<Instruction>) {
   });
   // The top of the stack is at the front of the array representing the stack.
   return stacks
-    .filter(stack => stack.length > 0)
-    .map(stack => stack[0])
+    .filter((stack) => stack.length > 0)
+    .map((stack) => stack[0])
     .join('');
 }
 

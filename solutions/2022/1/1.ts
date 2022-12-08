@@ -8,11 +8,11 @@ const data = input.parse(
   input.parse.split.group,
   (dataGroup: string) =>
     input.parse(dataGroup, input.parse.split.line, Number),
-)
+);
 
 function solve(elves: Array<Array<number>>) {
   let greatestCalories = -1;
-  elves.forEach((elf, elfIdx) => {
+  elves.forEach((elf) => {
     const calories = array.sum(elf);
     if (calories > greatestCalories) {
       greatestCalories = calories;

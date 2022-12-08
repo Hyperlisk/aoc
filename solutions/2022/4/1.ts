@@ -1,17 +1,17 @@
 
-import { array, input, log } from "@Hyperlisk/aoc-lib";
+import { input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2022, 4);
 const data = input.parse(
   inputData,
   input.parse.split.line,
   (dataLine: string) =>
-    input.parse(dataLine, ",", String).map(range => input.parse(range, "-", Number)),
+    input.parse(dataLine, ",", String).map((range) => input.parse(range, "-", Number)),
 );
 
 function solve(rangesList: Array<Array<Array<number>>>) {
   let result = 0;
-  rangesList.forEach(ranges => {
+  rangesList.forEach((ranges) => {
     const [[rangeOneStart, rangeOneEnd], [rangeTwoStart, rangeTwoEnd]] = ranges;
     const hasCompleteOverlap =
       (rangeOneStart >= rangeTwoStart && rangeOneStart <= rangeTwoEnd && rangeOneEnd >= rangeTwoStart && rangeOneEnd <= rangeTwoEnd) ||

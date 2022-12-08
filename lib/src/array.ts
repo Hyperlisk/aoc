@@ -22,13 +22,13 @@ export function chunk<T, N extends number>(input: Array<T>, chunkSize: N): Array
     result.push(input.slice(i, i + chunkSize));
   }
   return result;
-};
+}
 
 export function intersection<T>(first: Array<T>, ...rest: Array<Array<T>>): Array<T> {
   function intersect2<T>(a: Array<T>, b: Array<T>): Array<T> {
     const seen: Set<T> = new Set(a);
     const results: Set<T> = new Set();
-    b.forEach(item => {
+    b.forEach((item) => {
       if (seen.has(item)) {
         results.add(item);
       }
@@ -36,7 +36,7 @@ export function intersection<T>(first: Array<T>, ...rest: Array<Array<T>>): Arra
     return Array.from(results);
   }
   return rest.reduce(intersect2, first);
-};
+}
 
 type RangeOptions = {
   inclusive?: boolean,
@@ -47,7 +47,7 @@ export function range(start: number, end: number, options?: RangeOptions): Array
     // Override with user-specified options.
     ...options,
   };
-  const length = end - start + (inclusive ? 1 : 0)
+  const length = end - start + (inclusive ? 1 : 0);
   return virtual.array((idx) => start + idx, length);
 }
 
@@ -64,12 +64,12 @@ export function reverse<T>(input: Array<T>): Array<T> {
 
 export function sum(input: Array<number>): number {
   return input.reduce((total, n) => total + n, 0);
-};
+}
 
 export function zip<T>(...arrays: Array<Array<T>>): Array<Array<T>> {
   const [first, ...additionalArrays] = arrays;
-  const results: Array<Array<T>> = first.map(firstItem => [firstItem]);
-  additionalArrays.forEach(additionalArray => {
+  const results: Array<Array<T>> = first.map((firstItem) => [firstItem]);
+  additionalArrays.forEach((additionalArray) => {
     if (additionalArray.length !== first.length) {
       throw new Error(`Can not zip arrays with different length: ${additionalArray.length} !== ${first.length}`);
     }
@@ -92,4 +92,4 @@ export function window<T, Length extends number>(input: Array<T>, windowSize: Le
     },
     input.length - windowSize + 1,
   );
-};
+}

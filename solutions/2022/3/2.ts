@@ -8,7 +8,7 @@ type SplitChunks = [string[], string[], string[]];
 const inputData = await input.fetchProblemInput(2022, 3);
 const data =
   array.chunk(input.parse(inputData, input.parse.split.line, String), 3)
-    .map<SplitChunks>(chunk => [
+    .map<SplitChunks>((chunk) => [
       input.parse(chunk[0], input.parse.split.character, String),
       input.parse(chunk[1], input.parse.split.character, String),
       input.parse(chunk[2], input.parse.split.character, String),
@@ -31,7 +31,7 @@ function findPriority(itemType: string) {
 
 function solve(rucksacks: Array<SplitChunks>) {
   // Use `flatMap` to end up with a flat array with all of the errors.
-  const rucksackBadges = rucksacks.flatMap(chunk => array.intersection(...chunk));
+  const rucksackBadges = rucksacks.flatMap((chunk) => array.intersection(...chunk));
   const rucksackBadgePriorities = rucksackBadges.map(findPriority);
   return array.sum(rucksackBadgePriorities);
 }

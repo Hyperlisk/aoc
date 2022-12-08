@@ -54,10 +54,10 @@ const gameResult = (opponent: string, me: string) => {
     return THROW_VALUES[THROW_MAP[me]] + RESULT_VALUES.win;
   }
   throw new Error(`Unkown values: [opponent:${opponent}] [me:${me}]`);
-}
+};
 
 function solve(fixedGames: Array<Array<string>>) {
-  const gameResults = fixedGames.map((fixedGame, i) => {
+  const gameResults = fixedGames.map((fixedGame) => {
     const [opponentThrow, myThrow] = fixedGame;
     return gameResult(opponentThrow, myThrow);
   });

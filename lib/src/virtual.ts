@@ -33,14 +33,15 @@ function virtualArrayIterator<T>(generator, length): VirtualArrayIterator<T> {
         };
       },
     };
-  };
+  }
+
   return iterator;
 }
 
 const loggedStacks: Set<string> = new Set();
 
 export function array<T>(generator: (index: number) => T, length: number) {
-  const proxyHandler = ((shim: null | Array<T>, loggedMethods: Set<string> = new Set()) => ({
+  const proxyHandler = ((shim: null | Array<T>) => ({
     get(target, property, receiver) {
       if (property === "length") {
         return length;
@@ -77,4 +78,4 @@ export function array<T>(generator: (index: number) => T, length: number) {
     },
   }))(null);
   return new Proxy([], proxyHandler);
-};
+}

@@ -8,7 +8,7 @@ const data = input.parse(
   input.parse.split.group,
   (dataGroup: string) =>
     input.parse(dataGroup, input.parse.split.line, Number),
-)
+);
 
 function solve(elves: Array<Array<number>>) {
   const elfCalories = elves.map(array.sum);

@@ -72,11 +72,13 @@ export async function fetchProblemAnswer(year: number, day: number, part: 1 | 2)
   if (!matchedAnswers || matchedAnswers.length < part) {
     throw new Error(`You have not solved part ${part} of ${year}/${day} yet.`);
   }
-  return matchedAnswers.map(code => code.split('>')[1])[part - 1];
+  return matchedAnswers.map((code) => code.split('>')[1])[part - 1];
 }
 
 export function parse<Result>(inputData: string, dataSplitter: string, dataMapper: DataMapper<Result>, dataFilter: (data: string) => boolean = Boolean): Array<Result> {
-  return inputData.split(dataSplitter).filter(data => dataFilter(data)).map(data => dataMapper(data));
+  return inputData.split(dataSplitter)
+    .filter((data) => dataFilter(data))
+    .map((data) => dataMapper(data));
 }
 
 parse.split = {

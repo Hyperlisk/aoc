@@ -22,4 +22,4 @@ export function chunk<N extends number>(input: string, chunkSize: N, options?: C
     result.push(chunk);
   }
   return result;
-};
+}
