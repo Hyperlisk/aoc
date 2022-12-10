@@ -21,12 +21,15 @@ function solve(input: InputType) {
       command = line[1];
       switch (command) {
         case 'cd':
-          currentDirectory =
-            line[2] === '..'
-              ? currentDirectory.substr(0, currentDirectory.lastIndexOf('/'))
-              : line[2] === '/'
-                ? ''
-                : `${currentDirectory}/${line[2]}`;
+          if (line[2] === '/') {
+            currentDirectory = '';
+          } else if (currentDirectory === null) {
+            throw new Error("Current directory is null!");
+          } else if (line[2] === '..') {
+            currentDirectory = currentDirectory.substr(0, currentDirectory.lastIndexOf('/'));
+          } else {
+            currentDirectory = `${currentDirectory}/${line[2]}`;
+          }
           break;
         case 'ls':
           break;
@@ -35,6 +38,9 @@ function solve(input: InputType) {
       // This is output to the previous command.
       if (command === 'ls') {
         if (line[0] !== 'dir') {
+          if (currentDirectory === null) {
+            throw new Error("Current directory is null!");
+          }
           const size = parseInt(line[0], 10);
           const dirParts = currentDirectory.split('/');
           const directories = virtual.array((idx) => dirParts.slice(0, idx + 1).join('/') || '/', dirParts.length);

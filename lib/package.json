@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc  --module es2022 --target es2022 --moduleResolution node --rootDir ./ --declaration --outDir dist index.ts",
+    "build": "tsc  --module es2022 --target es2022 --strict --moduleResolution node --noImplicitAny --rootDir ./ --declaration --outDir dist index.ts",
     "postinstall": "pnpm run build"
   },
   "keywords": [],

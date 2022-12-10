@@ -12,7 +12,7 @@ type VirtualArrayIterator<T> =
     next(): VirtualArrayIteratorResult<T>;
   };
 
-function virtualArrayIterator<T>(generator, length): VirtualArrayIterator<T> {
+function virtualArrayIterator<T>(receiver: Array<T> , length: number): VirtualArrayIterator<T> {
   let valuesEmitted = 0;
 
   function iterator() {
@@ -28,7 +28,7 @@ function virtualArrayIterator<T>(generator, length): VirtualArrayIterator<T> {
           };
         }
         return {
-          value: generator(valuesEmitted++),
+          value: receiver[valuesEmitted++],
           done: false,
         };
       },
@@ -40,42 +40,74 @@ function virtualArrayIterator<T>(generator, length): VirtualArrayIterator<T> {
 
 const loggedStacks: Set<string> = new Set();
 
-export function array<T>(generator: (index: number) => T, length: number) {
-  const proxyHandler = ((shim: null | Array<T>) => ({
-    get(target, property, receiver) {
+export function array<T>(generator: (index: number) => T | undefined, length: number, options?: { cache?: Map<string, T | undefined> | boolean }): Array<T> {
+  const actualOptions = {
+    cache: true,
+    ...options,
+  };
+  const cache = actualOptions.cache === false
+    ? null
+    : actualOptions.cache === true
+      ? new Map<string, T | undefined>()
+      : actualOptions.cache;
+  const proxyHandler = {
+    get(target: Array<T>, property: string | symbol, receiver: Array<T>) {
+      if (typeof property === 'symbol') {
+        if (property === Symbol.iterator) {
+          return virtualArrayIterator(receiver, length);
+        }
+        throw new Error(`Not sure how to handle this symbol yet: ${String(property)}`);
+      }
       if (property === "length") {
         return length;
       }
-      if (typeof property === "string" && property.match(/^(0|[1-9][0-9]*)$/)) {
+      if (property.match(/^(0|[1-9][0-9]*)$/)) {
         const propertyAsNumber = parseInt(property, 10);
+        if (cache !== null){
+          if (!cache.has(property)) {
+            cache.set(property, generator(propertyAsNumber));
+          }
+          return cache.get(property);
+        }
         return generator(propertyAsNumber);
       }
-      const valuesIterator = virtualArrayIterator(generator, length);
-      if (property === Symbol.iterator) {
-        return valuesIterator;
+
+      if (property === "map") {
+        return <R>(itemGenerator: (item: T, idx: number) => R) => array<R>((idx) => itemGenerator(receiver[idx], idx), length);
       }
-      if (typeof target[property] !== "function") {
+      if (property === "forEach") {
+        let i = 0;
+        return (itemHandler: Parameters<typeof Array.prototype.forEach>[0]) => {
+          for (;i < length;i++) {
+            itemHandler(receiver[i], i, receiver);
+          }
+        };
+      }
+
+      const arrayProperty = target[property as keyof Array<T>];
+      if (typeof arrayProperty !== "function") {
         throw new Error(`Not sure how to handle this property yet: ${property}`);
       }
-      if (property === "map") {
-        return (itemGenerator) => array((idx) => itemGenerator(receiver[idx]), length);
-      }
-      if (shim === null) {
-        try {
-          throw new Error(`Using array shim for "Virtual.${property}". This will probably impact performace.`);
-        } catch (e) {
-          if (!loggedStacks.has(e.stack)) {
+
+      try {
+        throw new Error(`Using array shim for "Virtual.${property}". This will probably impact performace.`);
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          if (e.stack !== undefined && !loggedStacks.has(e.stack)) {
             log.error(e);
             loggedStacks.add(e.stack);
           }
         }
-        shim = [];
-        for (let idx = 0; idx < length; idx++) {
-          shim.push(generator(idx));
-        }
       }
-      return target[property].bind(shim);
+      return arrayProperty.bind(Array.from(receiver));
     },
-  }))(null);
+    set(target: Array<T>, property: string | symbol, value: T) {
+      if (typeof property === "string" && cache !== null) {
+        cache.set(property, value);
+        return true;
+      }
+      return false;
+    },
+  };
   return new Proxy([], proxyHandler);
 }

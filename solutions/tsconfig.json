@@ -5,6 +5,7 @@
     "noImplicitAny": true,
     "outDir": "./js",
     "rootDir": "./",
+    "strict": true,
     "target": "es2022"
   }
 }
