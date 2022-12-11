@@ -23,22 +23,22 @@ function solve(input: InputType) {
   [
     // Top-Bottom Coordinates
     virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: idx, row: 0 }, grid.navigator.step.down), numberOfRows)),
+      (idx) => virtual.array(grid.navigator(input, { col: idx, row: 0 }, grid.navigator.step.down), numberOfRows),
       numberOfColumns,
     ),
     // Bottom-Top Coordinates
     virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: idx, row: numberOfRows - 1 }, grid.navigator.step.up), numberOfRows)),
+      (idx) => virtual.array(grid.navigator(input, { col: idx, row: numberOfRows - 1 }, grid.navigator.step.up), numberOfRows),
       numberOfColumns,
     ),
     // Left-Right Coordinates
     virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: 0, row: idx }, grid.navigator.step.right), numberOfColumns)),
+      (idx) => virtual.array(grid.navigator(input, { col: 0, row: idx }, grid.navigator.step.right), numberOfColumns),
       numberOfColumns,
     ),
     // Right-Left Coordinates
     virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: numberOfColumns - 1, row: idx }, grid.navigator.step.left), numberOfColumns)),
+      (idx) => virtual.array(grid.navigator(input, { col: numberOfColumns - 1, row: idx }, grid.navigator.step.left), numberOfColumns),
       numberOfColumns,
     ),
   ]
