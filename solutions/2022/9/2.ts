@@ -41,7 +41,7 @@ function solve(input: InputType) {
     },
   );
 
-  const navigateTail = grid.navigator(
+  const createFollower = (head: ReturnType<typeof grid.navigator>) => grid.navigator(
     { col: 0, row: 0 },
     (current) => {
       if (!current) {
@@ -49,7 +49,7 @@ function solve(input: InputType) {
       }
       const { col, row } = current;
 
-      const headLocation = navigateHead.current();
+      const headLocation = head.current();
       if (!headLocation) {
         throw new Error("No head?");
       }
@@ -107,22 +107,48 @@ function solve(input: InputType) {
     },
   );
 
+  const follower1 = createFollower(navigateHead);
+  const follower2 = createFollower(follower1);
+  const follower3 = createFollower(follower2);
+  const follower4 = createFollower(follower3);
+  const follower5 = createFollower(follower4);
+  const follower6 = createFollower(follower5);
+  const follower7 = createFollower(follower6);
+  const follower8 = createFollower(follower7);
+  const follower9 = createFollower(follower8);
+
   // The first items would be the origin.
   // We have those as (0, 0) for both, so we can handle that separately.
   navigateHead();
-  navigateTail();
+  follower1();
+  follower2();
+  follower3();
+  follower4();
+  follower5();
+  follower6();
+  follower7();
+  follower8();
+  follower9();
 
   const tailPointSet = new point.set();
-  const tailCurrent = navigateTail.current();
+  const tailCurrent = follower9.current();
   if (tailCurrent) {
     tailPointSet.add(point.from(tailCurrent, 'col', 'row'));
   }
 
   expandedDirections.forEach(() => {
     navigateHead();
-    navigateTail();
+    follower1();
+    follower2();
+    follower3();
+    follower4();
+    follower5();
+    follower6();
+    follower7();
+    follower8();
+    follower9();
 
-    const tailCurrent = navigateTail.current();
+    const tailCurrent = follower9.current();
     if (tailCurrent) {
       tailPointSet.add(point.from(tailCurrent, 'col', 'row'));
     }
