@@ -13,23 +13,25 @@ const parsedInput: InputType = input.parse(
 function getScenicScore(input: InputType, row: number, col: number) {
   const maxTreeHeight = input[row][col];
 
-  function count(navigate: ReturnType<typeof grid.navigator>) {
+  function count(navigate: ReturnType<typeof grid.navigator>): number {
     let result = 0;
-    do {
-      const gridPoint = navigate();
-      if (gridPoint === undefined) {
-        return result;
-      }
-      const { col, row } = gridPoint;
-      if (col < 0 || row < 0 || row >= input.length || col >= input[row].length) {
-        return result;
-      }
-      result += 1;
-      const treeHeight = input[row][col];
-      if (treeHeight >= maxTreeHeight) {
-        return result;
-      }
-    } while (true);
+    navigate.while(
+      (gridPoint) => {
+        const { col, row } = gridPoint;
+        if (col < 0 || row < 0 || row >= input.length || col >= input[row].length) {
+          return false;
+        }
+        return true;
+      },
+      (gridPoint) => {
+        result += 1;
+        const treeHeight = input[gridPoint.row][gridPoint.col];
+        if (treeHeight >= maxTreeHeight) {
+          return true;
+        }
+      },
+    );
+    return result;
   }
 
   const scoreLeft = count(grid.navigator(input, { col: col - 1, row }, grid.navigator.step.left));
