@@ -1,5 +1,5 @@
 
-import { grid, input, log, virtual } from "@Hyperlisk/aoc-lib";
+import { grid, input, log } from "@Hyperlisk/aoc-lib";
 
 type InputType = Array<Array<number>>;
 
@@ -10,52 +10,49 @@ const parsedInput: InputType = input.parse(
   (line) => input.parse(line, input.parse.split.character, Number),
 );
 
-function encodeCoordinate(row: number, col: number, numberOfColumns: number) {
-  return row * numberOfColumns + col;
+function getScenicScore(input: InputType, row: number, col: number) {
+  const maxTreeHeight = input[row][col];
+
+  function count(navigate: ReturnType<typeof grid.navigator>) {
+    let result = 0;
+    do {
+      const gridPoint = navigate();
+      if (gridPoint === undefined) {
+        return result;
+      }
+      const { col, row } = gridPoint;
+      if (col < 0 || row < 0 || row >= input.length || col >= input[row].length) {
+        return result;
+      }
+      result += 1;
+      const treeHeight = input[row][col];
+      if (treeHeight >= maxTreeHeight) {
+        return result;
+      }
+    } while (true);
+  }
+
+  const scoreLeft = count(grid.navigator(input, { col: col - 1, row }, grid.navigator.step.left));
+  const scoreDown = count(grid.navigator(input, { col, row: row + 1 }, grid.navigator.step.down));
+  const scoreUp = count(grid.navigator(input, { col, row: row - 1 }, grid.navigator.step.up));
+  const scoreRight = count(grid.navigator(input, { col: col + 1, row }, grid.navigator.step.right));
+
+  return scoreLeft * scoreDown * scoreUp * scoreRight;
 }
 
 function solve(input: InputType) {
-  const numberOfColumns = input[0].length;
-  const numberOfRows = input.length;
+  let highestScenicScore = -1;
 
-  const visibleTrees: Set<number> = new Set();
-
-  [
-    // Top-Bottom Coordinates
-    virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: idx, row: 0 }, grid.navigator.step.down), numberOfRows)),
-      numberOfColumns,
-    ),
-    // Bottom-Top Coordinates
-    virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: idx, row: numberOfRows - 1 }, grid.navigator.step.up), numberOfRows)),
-      numberOfColumns,
-    ),
-    // Left-Right Coordinates
-    virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: 0, row: idx }, grid.navigator.step.right), numberOfColumns)),
-      numberOfColumns,
-    ),
-    // Right-Left Coordinates
-    virtual.array(
-      (idx) => Array.from(virtual.array(grid.navigator(input, { col: numberOfColumns - 1, row: idx }, grid.navigator.step.left), numberOfColumns)),
-      numberOfColumns,
-    ),
-  ]
-    .forEach((gridPointsList) => {
-      gridPointsList.forEach((gridPoints) => {
-        let tallestHeight = -1;
-        gridPoints.forEach(({ row, col }) => {
-          const treeHeight = input[row][col];
-          if (treeHeight > tallestHeight) {
-            tallestHeight = treeHeight;
-            visibleTrees.add(encodeCoordinate(row, col, numberOfColumns));
-          }
-        });
-      });
+  input.forEach((rows, rowIdx) => {
+    rows.forEach((treeHeight, colIdx) => {
+      const scenicScore = getScenicScore(input, rowIdx, colIdx);
+      if (scenicScore > highestScenicScore) {
+        highestScenicScore = scenicScore;
+      }
     });
+  });
 
-  return visibleTrees.size;
+  return highestScenicScore;
 }
 
 log.write(solve(parsedInput));
