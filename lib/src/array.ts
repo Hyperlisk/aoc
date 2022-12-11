@@ -1,12 +1,35 @@
 
 import * as virtual from "./virtual.js";
 
+export function concat<T>(...arrays: Array<Array<T>>): Array<T> {
+  const lengths = virtual.array((idx) => arrays[idx].length, arrays.length);
+  const totalLength = sum(lengths);
+  return virtual.array(
+    (idx) => {
+      for (let i = 0;i < lengths.length;i++) {
+        if (idx < lengths[i]) {
+          return arrays[i][idx];
+        } else {
+          idx -= lengths[i];
+        }
+      }
+
+      throw new Error(`Did not find the propery array for index: ${sum(lengths) + idx}`);
+    },
+    totalLength,
+  );
+}
+
 export function chunk<T, N extends number>(input: Array<T>, chunkSize: N): Array<Array<T>> {
   const result: Array<Array<T>> = [];
   for (let i = 0;i < input.length;i += chunkSize) {
     result.push(input.slice(i, i + chunkSize));
   }
   return result;
+}
+
+export function fill<T>(element: T, length: number) {
+  return virtual.array(() => element, length);
 }
 
 export function intersection<T>(first: Array<T>, ...rest: Array<Array<T>>): Array<T> {
@@ -45,6 +68,11 @@ range.inclusive = function rangeInclusive(start: number, end: number, options: E
 
 export function reverse<T>(input: Array<T>): Array<T> {
   return virtual.array((idx) => input[input.length - idx - 1], input.length);
+}
+
+export function stepper<T>(input: Array<T>): () => T | void {
+  let idx = 0;
+  return () => input[idx++];
 }
 
 export function sum(input: Array<number>): number {

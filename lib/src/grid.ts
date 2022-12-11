@@ -1,5 +1,4 @@
 
-type Grid<T> = Array<Array<T>>;
 type GridPoint = {
   col: number,
   row: number,
@@ -8,27 +7,37 @@ type GridPoint = {
 type GridNavigatorResult = GridPoint | undefined;
 type GridNavigatorFn = (current: GridPoint) => GridNavigatorResult;
 
-export function navigator<T>(grid: Grid<T>, start: GridPoint, step: GridNavigatorFn) {
-  let next: GridPoint | undefined = start;
+export function navigator(start: GridPoint, step: GridNavigatorFn) {
+  let current: GridNavigatorResult;
 
   function takeStep(): GridNavigatorResult {
-    const current = next;
-
     if (current) {
-      next = step(current);
+      current = step(current);
+    } else {
+      current = start;
     }
 
     return current;
   }
 
-  takeStep.while = function takeStepWhile(condition: (result: GridPoint) => boolean, callback: (result: GridPoint) => true | undefined): void {
-    while (next !== undefined && condition(next)) {
-      const result = callback(next);
+  takeStep.current = function takeStepCurrent() {
+    return current;
+  };
+
+  takeStep.while = function takeStepWhile(condition: (next: GridPoint) => boolean, callback: (current: GridPoint) => true | undefined): void {
+    do {
       takeStep();
+      if (current === undefined) {
+        return;
+      }
+      if (!condition(current)) {
+        return;
+      }
+      const result = callback(current);
       if (result !== undefined) {
         return;
       }
-    }
+    } while (current);
   };
 
   return takeStep;
