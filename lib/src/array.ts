@@ -46,6 +46,20 @@ export function intersection<T>(first: Array<T>, ...rest: Array<Array<T>>): Arra
   return rest.reduce(intersect2, first);
 }
 
+export function max<T>(input: Array<T>): T {
+  if (input.length === 0) {
+    throw new Error("Can not find the maximum of zero values.");
+  }
+  let greatest = input[0];
+  view(input, 1)
+    .forEach((item) => {
+      if (item > greatest) {
+        greatest = item;
+      }
+    });
+  return greatest;
+}
+
 type RangeOptions = {
   inclusive?: boolean,
 };

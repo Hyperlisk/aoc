@@ -11,14 +11,7 @@ const data = input.parse(
 );
 
 function solve(elves: Array<Array<number>>) {
-  let greatestCalories = -1;
-  elves.forEach((elf) => {
-    const calories = array.sum(elf);
-    if (calories > greatestCalories) {
-      greatestCalories = calories;
-    }
-  });
-  return greatestCalories;
+  return array.max(elves.map(array.sum));
 }
 
 const solution = solve(data);
