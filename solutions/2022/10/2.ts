@@ -17,22 +17,21 @@ const parsedInput: InputType = input.parse(
 );
 
 function solve(input: InputType) {
-  let totalSignalStrength = 0;
-
-  function getSignalStrength(cycleNumber: number, x: number) {
-    return cycleNumber * x;
-  }
-
-  const cyclesWeCareAbout = new Set([20, 60, 100, 140, 180, 220]);
+  const OUTPUT_COLUMNS = 40;
 
   let cycleNumber = 0;
   let x = 1;
+  const output : Array<Array<'.' | '#'>> = [];
   function tick() {
-    cycleNumber += 1;
-    if (cyclesWeCareAbout.has(cycleNumber)) {
-      totalSignalStrength += getSignalStrength(cycleNumber, x);
+    const outputColumn = cycleNumber % OUTPUT_COLUMNS;
+    if (outputColumn === 0) {
+      output.push([]);
     }
+    const outputRow = output[output.length - 1];
+    cycleNumber += 1;
+    outputRow.push((outputColumn === x - 1 || outputColumn === x || outputColumn === x + 1) ? '#' : '.');
   }
+
   input.forEach((command) => {
     if (command.opcode === 'noop') {
       tick();
@@ -43,7 +42,7 @@ function solve(input: InputType) {
     }
   });
 
-  return totalSignalStrength;
+  return output.map((outputRow) => outputRow.join('')).join("\n");
 }
 
 log.write(solve(parsedInput));
