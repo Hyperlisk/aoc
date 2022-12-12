@@ -90,7 +90,11 @@ export function stepper<T>(input: Array<T>): () => T | void {
 }
 
 export function sum(input: Array<number>): number {
-  return input.reduce((total, n) => total + n, 0);
+  let result = 0;
+  for (let i = 0;i < input.length;i++) {
+    result += input[i];
+  }
+  return result;
 }
 
 export function view<T>(input: Array<T>, start: number, end?: number) {

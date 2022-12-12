@@ -1,5 +1,5 @@
 
-import { grid, input, log, point, virtual } from "@Hyperlisk/aoc-lib";
+import { array, grid, input, log, point, virtual } from "@Hyperlisk/aoc-lib";
 
 type InputType = Array<Array<number>>;
 
@@ -16,7 +16,7 @@ function solve(input: InputType) {
 
   const visibleTrees: point.set = new point.set();
 
-  [
+  array.concat(
     // Top-Bottom Coordinates
     virtual.array(
       (idx) => virtual.array(grid.navigator({ col: idx, row: 0 }, grid.navigator.step.down), numberOfRows),
@@ -37,17 +37,15 @@ function solve(input: InputType) {
       (idx) => virtual.array(grid.navigator({ col: numberOfColumns - 1, row: idx }, grid.navigator.step.left), numberOfColumns),
       numberOfColumns,
     ),
-  ]
-    .forEach((gridPointsList) => {
-      gridPointsList.forEach((gridPoints) => {
-        let tallestHeight = -1;
-        gridPoints.forEach((gridPoint) => {
-          const treeHeight = input[gridPoint.row][gridPoint.col];
-          if (treeHeight > tallestHeight) {
-            tallestHeight = treeHeight;
-            visibleTrees.add(point.from(gridPoint, 'col', 'row'));
-          }
-        });
+  )
+    .forEach((gridPoints) => {
+      let tallestHeight = -1;
+      gridPoints.forEach((gridPoint) => {
+        const treeHeight = input[gridPoint.row][gridPoint.col];
+        if (treeHeight > tallestHeight) {
+          tallestHeight = treeHeight;
+          visibleTrees.add(point.from(gridPoint, 'col', 'row'));
+        }
       });
     });
 
