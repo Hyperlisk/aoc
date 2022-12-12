@@ -80,6 +80,16 @@ range.inclusive = function rangeInclusive(start: number, end: number, options: E
   });
 };
 
+
+export function realize<T>(virtual: Array<T>): Array<T>;
+export function realize<T>(generator: (idx: number) => T, length: number): Array<T>;
+export function realize<T>(input: Array<T> | ((idx: number) => T), length?: number): Array<T> {
+  if (Array.isArray(input)) {
+    return Array.from(input);
+  }
+  return Array.from(virtual.array(input, length || 0));
+}
+
 export function reverse<T>(input: Array<T>): Array<T> {
   return virtual.array((idx) => input[input.length - idx - 1], input.length);
 }

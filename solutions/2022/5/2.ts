@@ -16,10 +16,7 @@ const stacks: Array<Stack> =
     ),
   )
     .map(
-      (stack) =>
-        stack
-          .map((stackItem) => stackItem.replace(/[^A-Z]/g, ''))
-          .filter(Boolean)
+      (stack) => array.realize((idx) => stack[idx].replace(/[^A-Z]/g, ''), stack.length).filter(Boolean)
     );
 const instructions: Array<Instruction> = input.parse(
   instructionData,
@@ -52,7 +49,7 @@ function solve(stacks: Array<Stack>, instructions: Array<Instruction>) {
     executeInstruction(stacks, instruction[0], instruction[1] - 1, instruction[2] - 1);
   });
   // The top of the stack is at the front of the array representing the stack.
-  return stacks
+  return array.realize(stacks)
     .filter((stack) => stack.length > 0)
     .map((stack) => stack[0])
     .join('');

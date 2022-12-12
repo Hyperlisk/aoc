@@ -15,12 +15,8 @@ const stacks: Array<Stack> =
       (stackLine) => string.chunk(stackLine, 3, { gap: 1 }),
     ),
   )
-    .map(
-      (stack) =>
-        stack
-          .map((stackItem) => stackItem.replace(/[^A-Z]/g, ''))
-          .filter(Boolean)
-    );
+    .map((stack) => stack.map((stackItem) => stackItem.replace(/[^A-Z]/g, '')))
+    .map((stack) => array.realize(stack).filter(Boolean));
 const instructions: Array<Instruction> = input.parse(
   instructionData,
   input.parse.split.line,
@@ -52,7 +48,7 @@ function solve(stacks: Array<Stack>, instructions: Array<Instruction>) {
     executeInstruction(stacks, instruction[0], instruction[1] - 1, instruction[2] - 1);
   });
   // The top of the stack is at the front of the array representing the stack.
-  return stacks
+  return array.realize(stacks)
     .filter((stack) => stack.length > 0)
     .map((stack) => stack[0])
     .join('');
