@@ -1,6 +1,7 @@
 # Matched anywhere
 dist
 node_modules
+*.js.snap
 
 # Specific matches
 /solutions/js
