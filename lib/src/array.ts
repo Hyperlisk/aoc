@@ -102,16 +102,6 @@ export function view<T>(input: Array<T>, start: number, end?: number) {
   return virtual.array<T>((idx) => input[idx + start], length);
 }
 
-export function zip<T>(...arrays: Array<Array<T>>): Array<Array<T>> {
-  view(arrays, 1)
-    .forEach((additionalArray) => {
-      if (additionalArray.length !== arrays[0].length) {
-        throw new Error(`Can not zip arrays with different length: ${additionalArray.length} !== ${arrays[0].length}`);
-      }
-    });
-  return virtual.array((colIdx) => virtual.array((rowIdx) => arrays[rowIdx][colIdx], arrays.length), arrays[0].length);
-}
-
 export function window<T, Length extends number>(input: Array<T>, windowSize: Length): Array<Array<T>> {
   return virtual.array<Array<T>>(
     (windowIdx) => {
@@ -122,4 +112,14 @@ export function window<T, Length extends number>(input: Array<T>, windowSize: Le
     },
     input.length - windowSize + 1,
   );
+}
+
+export function zip<T>(...arrays: Array<Array<T>>): Array<Array<T>> {
+  view(arrays, 1)
+    .forEach((additionalArray) => {
+      if (additionalArray.length !== arrays[0].length) {
+        throw new Error(`Can not zip arrays with different length: ${additionalArray.length} !== ${arrays[0].length}`);
+      }
+    });
+  return virtual.array((colIdx) => virtual.array((rowIdx) => arrays[rowIdx][colIdx], arrays.length), arrays[0].length);
 }
