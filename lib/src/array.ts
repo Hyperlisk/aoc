@@ -90,9 +90,30 @@ export function realize<T>(input: Array<T> | ((idx: number) => T), length?: numb
   return Array.from(virtual.array(input, length || 0));
 }
 
+export function reduce<T, R>(input: Array<T>, callback: (currentReducedValue: R, nextValueToReduce: T, valueIndex: number) => R, initialValue: R): R {
+  let result: R = initialValue;
+  for (let i = 0;i < input.length;i++) {
+    result = callback(result, input[i], i);
+  }
+  return result;
+}
+
 export function reverse<T>(input: Array<T>): Array<T> {
   return virtual.array((idx) => input[input.length - idx - 1], input.length);
 }
+
+export function sorted<T>(input: Array<T>, comparator?: (a: T, b: T) => number): Array<T> {
+  return input.sort(comparator);
+}
+
+sorted.comparator = {
+  numbersAscending: (a: number, b: number) => a - b,
+  numbersDescending: (a: number, b: number) => b - a,
+};
+
+sorted.slice = function sortedSlice<T>(input: Array<T>, comparator: (a: T, b: T) => number): Array<T> {
+  return sorted(input.slice(0), comparator);
+};
 
 export function stepper<T>(input: Array<T>): () => T | void {
   let idx = 0;
