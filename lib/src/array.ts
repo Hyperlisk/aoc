@@ -102,16 +102,27 @@ export function reverse<T>(input: Array<T>): Array<T> {
   return virtual.array((idx) => input[input.length - idx - 1], input.length);
 }
 
-export function sorted<T>(input: Array<T>, comparator?: (a: T, b: T) => number): Array<T> {
+type SortedComparatorResult = -1 | 0 | 1;
+export function sorted<T>(input: Array<T>, comparator?: (a: T, b: T) => SortedComparatorResult): Array<T> {
   return input.sort(comparator);
 }
 
 sorted.comparator = {
-  numbersAscending: (a: number, b: number) => a - b,
-  numbersDescending: (a: number, b: number) => b - a,
+  bigintsAscending(a: bigint, b: bigint) : -1 | 0 | 1 {
+    return a > b ? 1 : a < b ? -1 : 0;
+  },
+  bigintsDescending(a: bigint, b: bigint) : -1 | 0 | 1 {
+    return a < b ? 1 : a > b ? -1 : 0;
+  },
+  numbersAscending(a: number, b: number) : -1 | 0 | 1 {
+    return a > b ? 1 : a < b ? -1 : 0;
+  },
+  numbersDescending(a: number, b: number) : -1 | 0 | 1 {
+    return a < b ? 1 : a > b ? -1 : 0;
+  },
 };
 
-sorted.slice = function sortedSlice<T>(input: Array<T>, comparator: (a: T, b: T) => number): Array<T> {
+sorted.slice = function sortedSlice<T>(input: Array<T>, comparator: (a: T, b: T) => SortedComparatorResult): Array<T> {
   return sorted(input.slice(0), comparator);
 };
 

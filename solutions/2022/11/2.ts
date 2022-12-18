@@ -2,6 +2,7 @@
 import { array, input, log } from "@Hyperlisk/aoc-lib";
 
 type Monkey = {
+  divisor: number;
   items: Array<number>;
   operation: (worryLevel: number) => number;
   test: (worryLevel: number) => number;
@@ -77,6 +78,7 @@ const parsedInput: InputType = input.parse(
     };
 
     return {
+      divisor: divisor,
       items: items,
       operation: operation,
       test: test,
@@ -85,26 +87,39 @@ const parsedInput: InputType = input.parse(
 );
 
 function solve(input: InputType) {
-  const monkeyInspections: Record<string, number> = {};
+  const monkeyInspections: Record<string, bigint> = {};
+
+  // Wrap worry levels above a common multiple of all the divisors.
+  // This makes sure we don't grow too large, and each monkey can still perform the test properly.
+  const mod = array.reduce(
+    input,
+    (mod, monkey) => mod * monkey.divisor,
+    1,
+  );
 
   function runRound() {
     input.forEach((monkey, monkeyIdx) => {
       monkey.items.forEach((item) => {
-        const worryDuringInspection = monkey.operation(item);
-        const worryAfterInspection = Math.floor(worryDuringInspection / 3);
-        const monkeyToThrowTo = monkey.test(worryAfterInspection);
-        input[monkeyToThrowTo].items.push(worryAfterInspection);
-        monkeyInspections[monkeyIdx] = (monkeyInspections[monkeyIdx] || 0) + 1;
+        const worryDuringInspection = monkey.operation(item) % mod;
+        const monkeyToThrowTo = monkey.test(worryDuringInspection);
+        input[monkeyToThrowTo].items.push(worryDuringInspection);
+        if (monkeyIdx in monkeyInspections) {
+          monkeyInspections[monkeyIdx] += 1n;
+        } else {
+          monkeyInspections[monkeyIdx] = 1n;
+        }
       });
       monkey.items = [];
     });
   }
 
-  array.range(0, 20).forEach(runRound);
+  array.range(0, 10000).forEach(runRound);
 
-  const sortedMonkeyInspections = array.sorted(Object.values(monkeyInspections), array.sorted.comparator.numbersDescending);
+  const sortedMonkeyInspections = array.sorted(Object.values(monkeyInspections), array.sorted.comparator.bigintsDescending);
   // Sorted in descending order, so greatest values are first.
-  return sortedMonkeyInspections[0] * sortedMonkeyInspections[1];
+  const result = sortedMonkeyInspections[0] * sortedMonkeyInspections[1];
+  // Return a result without the "n" BigInt suffix.
+  return result.toString();
 }
 
 log.write(solve(parsedInput));
