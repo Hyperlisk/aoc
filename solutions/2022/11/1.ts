@@ -1,5 +1,5 @@
 
-import { array, input, log } from "@Hyperlisk/aoc-lib";
+import { array, comparator, input, log } from "@Hyperlisk/aoc-lib";
 
 type Monkey = {
   items: Array<number>;
@@ -102,7 +102,7 @@ function solve(input: InputType) {
 
   array.range(0, 20).forEach(runRound);
 
-  const sortedMonkeyInspections = array.sorted(Object.values(monkeyInspections), array.sorted.comparator.numbersDescending);
+  const sortedMonkeyInspections = array.sorted(Object.values(monkeyInspections), comparator.numbers.descending);
   // Sorted in descending order, so greatest values are first.
   return sortedMonkeyInspections[0] * sortedMonkeyInspections[1];
 }

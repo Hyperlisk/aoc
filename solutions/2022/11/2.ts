@@ -1,5 +1,5 @@
 
-import { array, input, log } from "@Hyperlisk/aoc-lib";
+import { array, comparator, input, log } from "@Hyperlisk/aoc-lib";
 
 type Monkey = {
   divisor: number;
@@ -115,7 +115,7 @@ function solve(input: InputType) {
 
   array.range(0, 10000).forEach(runRound);
 
-  const sortedMonkeyInspections = array.sorted(Object.values(monkeyInspections), array.sorted.comparator.bigintsDescending);
+  const sortedMonkeyInspections = array.sorted(Object.values(monkeyInspections), comparator.bigints.descending);
   // Sorted in descending order, so greatest values are first.
   const result = sortedMonkeyInspections[0] * sortedMonkeyInspections[1];
   // Return a result without the "n" BigInt suffix.

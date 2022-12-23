@@ -1,5 +1,37 @@
 
+import * as comparator from "./comparator.js";
 import * as virtual from "./virtual.js";
+
+export function binary<T>(input: Array<T>, item: T, comparator: comparator.Comparator<T>) {
+  let low = 0;
+  let high = input.length - 1;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    const cmp = comparator(item, input[mid]);
+
+    switch (cmp) {
+      case -1:
+        high = mid - 1;
+        break;
+
+      case 0:
+        return mid;
+
+      case 1:
+        low = mid + 1;
+        break;
+    }
+  }
+
+  return low;
+}
+
+binary.insert = function binaryInsert<T>(input: Array<T>, item: T, comparator: comparator.Comparator<T>) {
+  const insertIndex = binary(input, item, comparator);
+  input.splice(insertIndex, 0, item);
+  return insertIndex;
+};
 
 export function concat<T>(...arrays: Array<Array<T>>): Array<T> {
   const lengths = virtual.array((idx) => arrays[idx].length, arrays.length);
@@ -102,27 +134,11 @@ export function reverse<T>(input: Array<T>): Array<T> {
   return virtual.array((idx) => input[input.length - idx - 1], input.length);
 }
 
-type SortedComparatorResult = -1 | 0 | 1;
-export function sorted<T>(input: Array<T>, comparator?: (a: T, b: T) => SortedComparatorResult): Array<T> {
+export function sorted<T>(input: Array<T>, comparator?: comparator.Comparator<T>): Array<T> {
   return input.sort(comparator);
 }
 
-sorted.comparator = {
-  bigintsAscending(a: bigint, b: bigint) : -1 | 0 | 1 {
-    return a > b ? 1 : a < b ? -1 : 0;
-  },
-  bigintsDescending(a: bigint, b: bigint) : -1 | 0 | 1 {
-    return a < b ? 1 : a > b ? -1 : 0;
-  },
-  numbersAscending(a: number, b: number) : -1 | 0 | 1 {
-    return a > b ? 1 : a < b ? -1 : 0;
-  },
-  numbersDescending(a: number, b: number) : -1 | 0 | 1 {
-    return a < b ? 1 : a > b ? -1 : 0;
-  },
-};
-
-sorted.slice = function sortedSlice<T>(input: Array<T>, comparator: (a: T, b: T) => SortedComparatorResult): Array<T> {
+sorted.slice = function sortedSlice<T>(input: Array<T>, comparator: comparator.Comparator<T>): Array<T> {
   return sorted(input.slice(0), comparator);
 };
 
