@@ -3,11 +3,6 @@ import { array, comparator, input, log } from "@Hyperlisk/aoc-lib";
 
 type PacketParts = Array<string>;
 
-type Signal = {
-  left:  PacketParts;
-  right: PacketParts;
-};
-
 type Packet = Array<number | Packet>;
 
 function isPacketString(part: string) {
@@ -39,14 +34,6 @@ function getPacketParts(packet: string): PacketParts {
     parts.push(packet.substring(partStart, packet.length - 1));
   }
   return parts;
-}
-
-function getSignalParts(signal: string): Signal {
-  const [left, right] = input.parse(signal, input.parse.split.line, String);
-  return {
-    left: getPacketParts(left),
-    right: getPacketParts(right),
-  };
 }
 
 const makePacketMemo = new Map<string, Packet>();
@@ -92,21 +79,30 @@ const comparePacketParts: comparator.Comparator<PacketParts> = (a, b) => {
   return comparePacket(packetA, packetB);
 };
 
-type InputType = Array<Signal>;
+type InputType = Array<PacketParts>;
 
 const inputData = await input.fetchProblemInput(2022, 13);
-const parsedInput: InputType = input.parse(inputData, input.parse.split.group, getSignalParts);
+const parsedInput: InputType =
+  input.parse(inputData, input.parse.split.line, String)
+    .concat(["[[2]]","[[6]]"])
+    .map(getPacketParts);
 
 function solve(input: InputType) {
-  return array.sum(
-    input.map((signalParts, idx) => {
-      const cmp = comparePacketParts(signalParts.left, signalParts.right);
-      if (cmp === -1 || cmp === 0) {
-        return idx + 1;
-      }
-      return 0;
-    }),
-  );
+  let divider2Idx = -1;
+  let divider6Idx = -1;
+  array.sorted(input, comparePacketParts);
+  input.forEach((packetParts, idx) => {
+    if (packetParts.length === 1 && packetParts[0] === "[2]") {
+      divider2Idx = idx + 1;
+    }
+    if (packetParts.length === 1 && packetParts[0] === "[6]") {
+      divider6Idx = idx + 1;
+    }
+  });
+  if (divider2Idx < 0 || divider6Idx < 0) {
+    throw new Error('Could not find dividers.');
+  }
+  return divider2Idx * divider6Idx;
 }
 
 log.write(solve(parsedInput));
