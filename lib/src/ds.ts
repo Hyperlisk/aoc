@@ -2,11 +2,11 @@
 import * as array from "./array.js";
 import * as comparator from "./comparator.js";
 
-export interface Map2D<K1, K2, V> {
-  delete(key1: K1, key2: K2): boolean;
-  get(key1: K1, key2: K2): V | undefined;
-  has(key1: K1, key2: K2): boolean;
-  set(key1: K1, key2: K2, value: V): this;
+export type Map2D<K1, K2, V> = {
+  delete: (key1: K1, key2: K2) => boolean;
+  get: (key1: K1, key2: K2) => V | undefined;
+  has: (key1: K1, key2: K2) => boolean;
+  set: (key1: K1, key2: K2, value: V) => Map2D<K1, K2, V>;
 }
 
 export function map2D<K1, K2, V>(): Map2D<K1, K2, V> {

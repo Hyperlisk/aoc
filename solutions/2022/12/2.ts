@@ -1,5 +1,5 @@
 
-import { graph, grid, input, log } from "@Hyperlisk/aoc-lib";
+import { array, graph, grid, input, log } from "@Hyperlisk/aoc-lib";
 
 type InputType = Array<Array<string>>;
 
@@ -32,6 +32,7 @@ function mapHeight(char: string): number {
 
 function solve(input: InputType) {
   const heightGrid: Array<Array<number>> = [];
+  const possibleStarts: Array<grid.GridPoint> = [];
   let endCol = -1;
   let endRow = -1;
   let startCol = -1;
@@ -47,14 +48,17 @@ function solve(input: InputType) {
         startCol = col;
         startRow = row;
       }
+      if (input[row][col] === 'a' ) {
+        possibleStarts.push({
+          col: col,
+          row: row,
+        });
+      }
       heightGrid[row][col] = mapHeight(input[row][col]);
     }
   }
   if (endCol < 0 || endRow < 0) {
     throw new Error("Uknown end.");
-  }
-  if (startCol < 0 || startRow < 0) {
-    throw new Error("Uknown start.");
   }
 
   const heightGraphNodeMap = grid.nodes(
@@ -68,7 +72,24 @@ function solve(input: InputType) {
   if (!startNode || !endNode) {
     throw new Error("Could not get the start or end node.");
   }
-  const path = graph.dijkstra(startNode, endNode);
+
+  const pathSE = graph.dijkstra(startNode, endNode);
+  if (pathSE === null) {
+    throw new Error("Could not find a path from S to E.");
+  }
+  const path = array.reduce(
+    possibleStarts,
+    (shortestPath, start) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const startNode = heightGraphNodeMap.get(start.row, start.col)!;
+      const path = graph.dijkstra(startNode, endNode);
+      if (path === null) {
+        return shortestPath;
+      }
+      return path.length < shortestPath.length ? path : shortestPath;
+    },
+    pathSE,
+  );
   // Subtract 1 because we do not count starting at (0, 0) as a step.
   return path.length - 1;
 }

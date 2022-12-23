@@ -69,6 +69,9 @@ function solve(input: InputType) {
     throw new Error("Could not get the start or end node.");
   }
   const path = graph.dijkstra(startNode, endNode);
+  if (path === null) {
+    throw new Error("Could not find a path from S to E.");
+  }
   // Subtract 1 because we do not count starting at (0, 0) as a step.
   return path.length - 1;
 }

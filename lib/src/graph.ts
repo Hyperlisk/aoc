@@ -8,7 +8,7 @@ export type Node<T> = {
   value: T;
 };
 
-export function dijkstra<T>(start: Node<T>, end: Node<T>): Array<Node<T>> {
+export function dijkstra<T>(start: Node<T>, end: Node<T>): Array<Node<T>> | null {
   const distances = new Map<Node<T>, number>();
   const previous = new Map<Node<T>, Node<T> | null>();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -20,11 +20,12 @@ export function dijkstra<T>(start: Node<T>, end: Node<T>): Array<Node<T>> {
   }
   distances.set(start, 0);
 
-  queue.push(start);
+  let current: Node<T> | undefined = undefined;
 
+  queue.push(start);
   while (queue.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const current = queue.pop()!;
+    current = queue.pop()!;
     if (current === end) {
       break;
     }
@@ -40,8 +41,10 @@ export function dijkstra<T>(start: Node<T>, end: Node<T>): Array<Node<T>> {
     }
   }
 
+  if (current !== end) {
+    return null;
+  }
   const path: Array<Node<T>> = [];
-  let current = end;
   while (current !== start) {
     path.push(current);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
