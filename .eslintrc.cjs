@@ -25,6 +25,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   root: true,
   rules: {
+    "@typescript-eslint/no-explicit-any": SEVERITY.ERROR,
     "@typescript-eslint/no-unused-vars": SEVERITY.ERROR,
     "arrow-parens": SEVERITY.ERROR,
     "comma-dangle": ["error", "always-multiline"],

@@ -14,27 +14,27 @@ function solve(input: InputType) {
   const numberOfColumns = input[0].length;
   const numberOfRows = input.length;
 
-  const visibleTrees: point.set = new point.set();
+  const visibleTrees = new point.set<grid.GridPoint>();
 
   array.concat(
     // Top-Bottom Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator({ col: idx, row: 0 }, grid.navigator.step.down), numberOfRows),
+      (idx) => virtual.array(grid.navigator(grid.at(idx, 0), grid.navigator.step.down), numberOfRows),
       numberOfColumns,
     ),
     // Bottom-Top Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator({ col: idx, row: numberOfRows - 1 }, grid.navigator.step.up), numberOfRows),
+      (idx) => virtual.array(grid.navigator(grid.at(idx, numberOfRows - 1), grid.navigator.step.up), numberOfRows),
       numberOfColumns,
     ),
     // Left-Right Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator({ col: 0, row: idx }, grid.navigator.step.right), numberOfColumns),
+      (idx) => virtual.array(grid.navigator(grid.at(0, idx), grid.navigator.step.right), numberOfColumns),
       numberOfColumns,
     ),
     // Right-Left Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator({ col: numberOfColumns - 1, row: idx }, grid.navigator.step.left), numberOfColumns),
+      (idx) => virtual.array(grid.navigator(grid.at(numberOfColumns - 1, idx), grid.navigator.step.left), numberOfColumns),
       numberOfColumns,
     ),
   )
@@ -44,7 +44,7 @@ function solve(input: InputType) {
         const treeHeight = input[gridPoint.row][gridPoint.col];
         if (treeHeight > tallestHeight) {
           tallestHeight = treeHeight;
-          visibleTrees.add(point.from(gridPoint, 'col', 'row'));
+          visibleTrees.add(gridPoint);
         }
       });
     });

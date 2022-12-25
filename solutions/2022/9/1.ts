@@ -25,7 +25,7 @@ function solve(input: InputType) {
   const nextDirection = array.stepper(expandedDirections);
 
   const navigateHead = grid.navigator(
-    { col: 0, row: 0 },
+    grid.at(0, 0),
     (current) => {
       const direction = nextDirection();
       if (direction === 'D') {
@@ -42,7 +42,7 @@ function solve(input: InputType) {
   );
 
   const navigateTail = grid.navigator(
-    { col: 0, row: 0 },
+    grid.at(0, 0),
     (current) => {
       if (!current) {
         throw new Error("No tail?");
@@ -115,7 +115,7 @@ function solve(input: InputType) {
   const tailPointSet = new point.set();
   const tailCurrent = navigateTail.current();
   if (tailCurrent) {
-    tailPointSet.add(point.from(tailCurrent, 'col', 'row'));
+    tailPointSet.add(tailCurrent);
   }
 
   expandedDirections.forEach(() => {
@@ -124,7 +124,7 @@ function solve(input: InputType) {
 
     const tailCurrent = navigateTail.current();
     if (tailCurrent) {
-      tailPointSet.add(point.from(tailCurrent, 'col', 'row'));
+      tailPointSet.add(tailCurrent);
     }
   });
 

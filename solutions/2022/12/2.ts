@@ -49,10 +49,7 @@ function solve(input: InputType) {
         startRow = row;
       }
       if (input[row][col] === 'a' ) {
-        possibleStarts.push({
-          col: col,
-          row: row,
-        });
+        possibleStarts.push(grid.at(col, row));
       }
       heightGrid[row][col] = mapHeight(input[row][col]);
     }

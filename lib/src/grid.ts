@@ -1,16 +1,68 @@
 
 import * as ds from "./ds.js";
 import * as graph from "./graph.js";
+import * as point from "./point.js";
 
-export type GridPoint = {
-  col: number,
-  row: number,
+export type GridPoint = point.AbstractPoint<'col', 'row'>;
+
+export function at(col: number, row: number): GridPoint {
+  return point.of(col, row, 'col', 'row');
+}
+
+type GridBox = {
+  getEnd(): GridPoint;
+  getHeight(): number;
+  getStart(): GridPoint;
+  getWidth(): number;
+  has(other: GridPoint): boolean;
+  include(other: GridPoint): boolean;
 };
+
+export function box(origin: GridPoint = at(0, 0)): GridBox {
+  let end = origin;
+  let start = origin;
+  return {
+    getEnd() {
+      return end;
+    },
+    getHeight() {
+      return Math.abs(start.row - end.row);
+    },
+    getStart() {
+      return start;
+    },
+    getWidth() {
+      return Math.abs(start.col - end.col);
+    },
+    has(other: GridPoint) {
+      const startCmp = point.compare(other, start);
+      const endCmp = point.compare(other, end);
+      return startCmp.x !== -1 && startCmp.y !== -1 && endCmp.x !== 1 && endCmp.y !== 1;
+    },
+    include(other: GridPoint) {
+      const startCmp = point.compare(other, start);
+      if (startCmp.x === -1) {
+        start = at(other.col, start.row);
+      }
+      if (startCmp.y === -1) {
+        start = at(start.col, other.row);
+      }
+      const endCmp = point.compare(other, end);
+      if (endCmp.x === 1) {
+        end = at(other.col, end.row);
+      }
+      if (endCmp.y === 1) {
+        end = at(end.col, other.row);
+      }
+      return startCmp.x === -1 || startCmp.y === -1 || endCmp.x === 1 || endCmp.y === 1;
+    },
+  };
+}
 
 export type GridNode<T> = graph.Node<{
   gridSource: GridPoint;
   gridValue: T,
-}> ;
+}>;
 
 export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPoint[]): ds.Map2D<number, number, GridNode<T>> {
   const result = ds.map2D<number, number, GridNode<T>>();
@@ -21,10 +73,7 @@ export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPo
         col,
         {
           value: {
-            gridSource: {
-              col: col,
-              row: row,
-            },
+            gridSource: at(col, row),
             gridValue: grid[row][col],
           },
           edges: [],
@@ -34,7 +83,7 @@ export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPo
   }
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
-      const neighbors = getNeighbors({ col, row });
+      const neighbors = getNeighbors(at(col, row));
       for (const neighbor of neighbors) {
         const neighborNode = result.get(neighbor.row, neighbor.col);
         if (neighborNode) {
@@ -51,65 +100,63 @@ type GridNavigatorResult = GridPoint | undefined;
 type GridNavigatorFn = (current: GridPoint) => GridNavigatorResult;
 
 export function navigator(start: GridPoint, step: GridNavigatorFn) {
-  let current: GridNavigatorResult;
+  const path: Array<GridNavigatorResult> = [start];
+  let pathIndex = -1;
 
   function takeStep(): GridNavigatorResult {
-    if (current) {
-      current = step(current);
-    } else {
-      current = start;
+    if (pathIndex + 1 === path.length) {
+      const current = path[pathIndex];
+      if (!current) {
+        throw new Error("Need a GridPoint to step from.");
+      }
+      path.push(step(current));
     }
-
-    return current;
+    return path[++pathIndex];
   }
 
-  takeStep.current = function takeStepCurrent() {
-    return current;
+  takeStep.current = function takeStepCurrent(): GridNavigatorResult {
+    return path[pathIndex];
   };
 
-  takeStep.while = function takeStepWhile(condition: (next: GridPoint) => boolean, callback: (current: GridPoint) => true | undefined): void {
+  takeStep.back = function takeStepBack(): GridNavigatorResult {
+    pathIndex -= 1;
+    return path.pop();
+  };
+
+  takeStep.while = function takeStepWhile(condition: true | ((next: GridPoint) => boolean), callback?: (current: GridPoint) => true | undefined): void {
     do {
       takeStep();
+      const current = path[pathIndex];
       if (current === undefined) {
         return;
       }
-      if (!condition(current)) {
+      if (condition !== true && !condition(current)) {
         return;
       }
-      const result = callback(current);
-      if (result !== undefined) {
-        return;
+      if (callback) {
+        const result = callback(current);
+        if (result !== undefined) {
+          return;
+        }
       }
-    } while (current);
+    } while (path[pathIndex]);
   };
 
   return takeStep;
 }
 
 navigator.step = {
-  down(current: GridPoint) {
-    return {
-      col: current.col,
-      row: current.row + 1,
-    };
+  down(current: GridPoint): GridPoint {
+    return at(current.col, current.row + 1);
   },
-  left(current: GridPoint) {
-    return {
-      col: current.col - 1,
-      row: current.row,
-    };
+  left(current: GridPoint): GridPoint {
+    return at(current.col - 1, current.row);
   },
-  right(current: GridPoint) {
-    return {
-      col: current.col + 1,
-      row: current.row,
-    };
+  right(current: GridPoint): GridPoint {
+    return at(current.col + 1, current.row);
   },
-  up(current: GridPoint) {
-    return {
-      col: current.col,
-      row: current.row - 1,
-    };
+  up(current: GridPoint): GridPoint {
+    return at(current.col, current.row - 1);
   },
 };
 
@@ -120,7 +167,7 @@ type NeighborOffset = {
 
 type NeighborKind = 'all' | 'adjacent' | 'diagonal';
 
-export function neighbors(point: GridPoint, size: { cols: number, rows: number }, which: NeighborKind): Array<GridPoint> {
+export function neighbors(from: GridPoint, size: { cols: number, rows: number }, which: NeighborKind): Array<GridPoint> {
   const offsets: Array<NeighborOffset> = [];
   if (which !== 'diagonal') {
     // 'all' or 'adjacent'
@@ -161,10 +208,7 @@ export function neighbors(point: GridPoint, size: { cols: number, rows: number }
     });
   }
   return offsets
-    .map(({ colOffset, rowOffset }) => ({
-      col: point.col + colOffset,
-      row: point.row + rowOffset,
-    }))
+    .map(({ colOffset, rowOffset }) => at(from.col + colOffset, from.row + rowOffset))
     .filter(({ col, row }) => {
       if (col < 0 || row < 0) {
         // Out of bounds, negative index.
