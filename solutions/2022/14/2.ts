@@ -57,6 +57,9 @@ function solve(input: InputType) {
       return false;
     }
     const below = grid.navigator.step.down(current);
+    if (below.row >= settledBoundingBox.getEnd().row + 2) {
+      return false;
+    }
     const belowLeft = grid.navigator.step.left(below);
     const belowRight = grid.navigator.step.right(below);
     return !settled.has(below) || !settled.has(belowLeft) || !settled.has(belowRight);
@@ -66,6 +69,9 @@ function solve(input: InputType) {
     grid.at(500, 0),
     (current) => {
       const below = grid.navigator.step.down(current);
+      if (below.row >= settledBoundingBox.getEnd().row + 2) {
+        return undefined;
+      }
       if (!settled.has(below)) {
         return below;
       }
@@ -84,7 +90,7 @@ function solve(input: InputType) {
   const settledBeforeSand = settled.size;
   let sandInBox = true;
   do {
-    moveSand.while((next) => settledBoundingBox.has(next));
+    moveSand.while(true);
     const fallingSand = moveSand.back();
     if (fallingSand) {
       // Sand will continue falling.
@@ -97,16 +103,20 @@ function solve(input: InputType) {
         throw new Error("Sand was not settled?");
       }
       settled.add(settledSand);
-      settledBoundingBox.include(settledSand);
 
       // Back up to before the sand settled.
       while (moveSand.current() !== undefined && !canStep(moveSand.current())) {
         moveSand.back();
       }
+      if (moveSand.current() === undefined) {
+        // We've gone backwards enough to reach the start. We're done.
+        break;
+      }
     }
   } while (sandInBox);
 
-  return settled.size - settledBeforeSand;
+  // Add one because we need an additional step to fill the hole the sand comes from.
+  return settled.size - settledBeforeSand + 1;
 }
 
 log.write(solve(parsedInput));
