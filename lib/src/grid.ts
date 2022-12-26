@@ -97,7 +97,7 @@ export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPo
 }
 
 type GridNavigatorResult = GridPoint | undefined;
-type GridNavigatorFn = (current: GridPoint) => GridNavigatorResult;
+type GridNavigatorFn = (current: GridPoint, path: Array<GridNavigatorResult>) => GridNavigatorResult;
 
 export function navigator(start: GridPoint, step: GridNavigatorFn) {
   const path: Array<GridNavigatorResult> = [start];
@@ -109,7 +109,7 @@ export function navigator(start: GridPoint, step: GridNavigatorFn) {
       if (!current) {
         throw new Error("Need a GridPoint to step from.");
       }
-      path.push(step(current));
+      path.push(step(current, path));
     }
     return path[++pathIndex];
   }
@@ -123,18 +123,18 @@ export function navigator(start: GridPoint, step: GridNavigatorFn) {
     return path.pop();
   };
 
-  takeStep.while = function takeStepWhile(condition: true | ((next: GridPoint) => boolean), callback?: (current: GridPoint) => true | undefined): void {
+  takeStep.while = function takeStepWhile(condition: true | ((next: GridPoint, path: Array<GridNavigatorResult>) => boolean), callback?: (current: GridPoint, path: Array<GridNavigatorResult>) => true | undefined): void {
     do {
       takeStep();
       const current = path[pathIndex];
       if (current === undefined) {
         return;
       }
-      if (condition !== true && !condition(current)) {
+      if (condition !== true && !condition(current, path)) {
         return;
       }
       if (callback) {
-        const result = callback(current);
+        const result = callback(current, path);
         if (result !== undefined) {
           return;
         }

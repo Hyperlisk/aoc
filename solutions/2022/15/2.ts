@@ -1,5 +1,5 @@
 
-import { array, input, log, point } from "@Hyperlisk/aoc-lib";
+import { grid, input, log, point } from "@Hyperlisk/aoc-lib";
 
 type InputType = Array<{
   beacon: point.Point;
@@ -21,35 +21,75 @@ const parsedInput: InputType = input.parse(
 
 function solve(input: InputType) {
   const beaconSet = new point.set();
-  const sensorSet = new point.set();
   for (const line of input) {
     beaconSet.add(line.beacon);
-    sensorSet.add(line.sensor);
   }
-  const inspectedRow = 2000000;
-  const notBeacons = new point.set();
+
+  const maxCoordinateValue = 4000000;
+  const minCoordinateValue = 0;
+
+  const makeDiamondWalker = (origin: point.Point, radius: number) => {
+    const start = grid.at(origin.x - radius, origin.y);
+    let offsetX = 1;
+    let offsetY = 1;
+    return {
+      navigator: grid.navigator(
+        start,
+        (current) => {
+          const result = grid.at(current.col + offsetX, current.row + offsetY);
+          if (result.col === origin.x) {
+            offsetY *= -1;
+          }
+          if (result.row === origin.y) {
+            offsetX *= -1;
+          }
+          return result;
+        },
+      ),
+      start: start,
+    };
+  };
+
   for (const line of input) {
-    const distanceToBeacon = point.distance.total(line.sensor, line.beacon);
-    const pointOnInspectedRow = point.at(line.sensor.x, inspectedRow);
-    const distanceToInspectedRow = point.distance.total(line.sensor, pointOnInspectedRow);
-    if (distanceToInspectedRow <= distanceToBeacon) {
-      if (!beaconSet.has(pointOnInspectedRow)) {
-        notBeacons.add(pointOnInspectedRow);
-      }
-      array.range.inclusive(1, distanceToBeacon - distanceToInspectedRow)
-        .forEach((offset) => {
-          const leftFromPointOnInspectedRow = point.at(pointOnInspectedRow.x - offset, inspectedRow);
-          if (!beaconSet.has(leftFromPointOnInspectedRow)) {
-            notBeacons.add(leftFromPointOnInspectedRow);
+    const distancePastBeacon = point.distance.total(line.sensor, line.beacon) + 1;
+    // The hidden beacon must be just outside our range.
+    const { navigator: stepAroundSensor, start: diamondWalkerStart } = makeDiamondWalker(line.sensor, distancePastBeacon);
+    const gridPointIsStart = (other: grid.GridPoint) => {
+      const startCmp = point.compare(other, diamondWalkerStart);
+      return startCmp.x === 0 && startCmp.y === 0;
+    };
+    stepAroundSensor.while(
+      (next, path) => {
+        return !gridPointIsStart(next) || path.length === 1;
+      },
+      (current) => {
+        if (current.col < minCoordinateValue || current.col > maxCoordinateValue) {
+          return undefined;
+        }
+        if (current.row < minCoordinateValue || current.row > maxCoordinateValue) {
+          return undefined;
+        }
+        for (const other of input) {
+          if (other === line) {
+            continue;
           }
-          const rightFromPointOnInspectedRow = point.at(pointOnInspectedRow.x + offset, inspectedRow);
-          if (!beaconSet.has(rightFromPointOnInspectedRow)) {
-            notBeacons.add(rightFromPointOnInspectedRow);
+          const distanceToBeacon = point.distance.total(other.sensor, other.beacon);
+          const distanceToCurrent = point.distance.total(other.sensor, current);
+          if (distanceToCurrent <= distanceToBeacon) {
+            return undefined;
           }
-        });
+        }
+        return true;
+      },
+    );
+
+    const last = stepAroundSensor.current();
+    if (last && !gridPointIsStart(last)) {
+      return point.x(last) * 4000000 + point.y(last);
     }
   }
-  return notBeacons.size;
+
+  throw new Error("Could not find the distress signal");
 }
 
 log.write(solve(parsedInput));
