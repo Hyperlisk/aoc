@@ -44,6 +44,22 @@ export function of<XT extends string, YT extends string>(x: number, y: number, x
   );
 }
 
+type PointDistanceResult = {
+  x: number,
+  y: number;
+};
+
+export function distance(a: AnyPoint, b: AnyPoint): PointDistanceResult {
+  return {
+    x: Math.abs(x(a) - x(b)),
+    y: Math.abs(y(a) - y(b)),
+  };
+}
+
+distance.total = function distanceTotal(a: AnyPoint, b: AnyPoint): number {
+  return Math.abs(x(a) - x(b)) + Math.abs(y(a) - y(b));
+};
+
 export class set<T extends AnyPoint> extends Set<T> {
   size: number;
   xToSeenY: Map<number, Set<number>>;

@@ -105,7 +105,7 @@ export function range(start: number, end: number, options?: RangeOptions): Array
   return virtual.array((idx) => start + idx, length);
 }
 
-range.inclusive = function rangeInclusive(start: number, end: number, options: Exclude<RangeOptions, 'inclusive'>) {
+range.inclusive = function rangeInclusive(start: number, end: number, options?: Exclude<RangeOptions, 'inclusive'>) {
   return range(start, end, {
     inclusive: true,
     ...options,
