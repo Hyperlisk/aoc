@@ -1,4 +1,5 @@
 
+import * as comparator from "./comparator.js";
 import * as ds from "./ds.js";
 import * as graph from "./graph.js";
 import * as point from "./point.js";
@@ -64,31 +65,25 @@ export type GridNode<T> = graph.Node<{
   gridValue: T,
 }>;
 
-export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPoint[]): ds.Map2D<number, number, GridNode<T>> {
-  const result = ds.map2D<number, number, GridNode<T>>();
+export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPoint[]): ds.MapND<[number, number], GridNode<T>> {
+  const result = ds.mapND<[number, number], GridNode<T>>(([colA, rowA], [colB, rowB]) => comparator.numbers(colA, colB) || comparator.numbers(rowA, rowB));
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
-      result.set(
-        row,
-        col,
-        {
-          value: {
-            gridSource: at(col, row),
-            gridValue: grid[row][col],
-          },
-          edges: [],
-        },
-      );
+      const node = graph.node({
+        gridSource: at(col, row),
+        gridValue: grid[row][col],
+      });
+      result.set([row, col], node);
     }
   }
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
       const neighbors = getNeighbors(at(col, row));
       for (const neighbor of neighbors) {
-        const neighborNode = result.get(neighbor.row, neighbor.col);
+        const neighborNode = result.get([neighbor.row, neighbor.col]);
         if (neighborNode) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          result.get(row, col)!.edges.push(neighborNode);
+          result.get([row, col])!.edges.push(neighborNode);
         }
       }
     }

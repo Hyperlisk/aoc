@@ -2,44 +2,62 @@
 import * as array from "./array.js";
 import * as comparator from "./comparator.js";
 
-export type Map2D<K1, K2, V> = {
-  delete: (key1: K1, key2: K2) => boolean;
-  get: (key1: K1, key2: K2) => V | undefined;
-  has: (key1: K1, key2: K2) => boolean;
-  set: (key1: K1, key2: K2, value: V) => Map2D<K1, K2, V>;
+export type MapND<KK extends unknown[], V> = {
+  delete: (keys: KK) => boolean;
+  get: (keys: KK) => V | undefined;
+  has: (keys: KK) => boolean;
+  set: (keys: KK, value: V) => MapND<KK, V>;
 }
 
-export function map2D<K1, K2, V>(): Map2D<K1, K2, V> {
-  const map = new Map<K1, Map<K2, V>>();
+export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator<KK>): MapND<KK, V> {
+  const savedKeys: Array<KK> = [];
+  const savedValues: Array<V> = [];
+  const getSavedKeysIndex = (keys: KK): number | null => {
+    if (savedKeys.length === 0) {
+      // Nothing is saved.
+      return null;
+    }
+    if (compareKeys(keys, savedKeys[0]) === -1) {
+      // The key we are looking for would be to the left of the first value, so it is not saved.
+      return null;
+    }
+    if (compareKeys(keys, savedKeys[savedKeys.length - 1]) === 1) {
+      // The key we are looking for would be to the right of the last value, so it is not saved.
+      return null;
+    }
+    const savedIndex = array.binary(savedKeys, keys, compareKeys);
+    return compareKeys(keys, savedKeys[savedIndex]) === 0 ? savedIndex : null;
+  };
   return {
-    delete(key1: K1, key2: K2): boolean {
-      const map2 = map.get(key1);
-      if (map2) {
-        return map2.delete(key2);
+    delete(keys: KK): boolean {
+      const savedIndex = getSavedKeysIndex(keys);
+      if (savedIndex === null) {
+        return false;
       }
-      return false;
+
+      savedKeys.splice(savedIndex, 1);
+      savedValues.splice(savedIndex, 1);
+      return true;
     },
-    get(key1: K1, key2: K2): V | undefined {
-      const map2 = map.get(key1);
-      if (map2) {
-        return map2.get(key2);
+    get(keys: KK): V | undefined {
+      const savedIndex = getSavedKeysIndex(keys);
+      if (savedIndex === null) {
+        return undefined;
       }
-      return undefined;
+      return savedValues[savedIndex];
     },
-    has(key1: K1, key2: K2): boolean {
-      const map2 = map.get(key1);
-      if (map2) {
-        return map2.has(key2);
-      }
-      return false;
+    has(keys: KK): boolean {
+      const savedIndex = getSavedKeysIndex(keys);
+      return savedIndex !== null;
     },
-    set(key1: K1, key2: K2, value: V) {
-      if (!map.has(key1)) {
-        map.set(key1, new Map());
-      }
-      const map2 = map.get(key1);
-      if (map2) {
-        map2.set(key2, value);
+    set(keys: KK, value: V) {
+      const savedIndex = getSavedKeysIndex(keys);
+      if (savedIndex !== null) {
+        savedValues[savedIndex] = value;
+      } else {
+        const insertIndex = array.binary(savedKeys, keys, compareKeys);
+        savedKeys.splice(insertIndex, 0, keys);
+        savedValues.splice(insertIndex, 0, value);
       }
       return this;
     },

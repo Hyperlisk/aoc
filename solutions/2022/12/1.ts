@@ -63,8 +63,8 @@ function solve(input: InputType) {
       grid.neighbors.adjacent(point, { cols: heightGrid[0].length, rows: heightGrid.length })
         .filter((neighbor) => heightGrid[point.row][point.col] + 1 >= heightGrid[neighbor.row][neighbor.col]),
   );
-  const startNode = heightGraphNodeMap.get(startRow, startCol);
-  const endNode = heightGraphNodeMap.get(endRow, endCol);
+  const startNode = heightGraphNodeMap.get([startRow, startCol]);
+  const endNode = heightGraphNodeMap.get([endRow, endCol]);
   if (!startNode || !endNode) {
     throw new Error("Could not get the start or end node.");
   }

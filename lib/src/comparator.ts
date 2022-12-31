@@ -14,8 +14,14 @@ export function bigints(a: bigint, b: bigint): ComparatorResult {
 bigints.descending = reversed(bigints);
 
 export function numbers(a: number, b: number): ComparatorResult {
-
   return a > b ? 1 : a < b ? -1 : 0;
 }
 
 numbers.descending = reversed(numbers);
+
+export function strings(a: string, b: string): ComparatorResult {
+  const cmp = a.localeCompare(b);
+  return cmp > 0 ? 1 : cmp < 0 ? -1 : 0;
+}
+
+strings.descending = reversed(strings);

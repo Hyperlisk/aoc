@@ -10,30 +10,24 @@ export type Node<T> = {
 
 export function dijkstra<T>(start: Node<T>, end: Node<T>): Array<Node<T>> | null {
   const distances = new Map<Node<T>, number>();
-  const previous = new Map<Node<T>, Node<T> | null>();
+  const getDistance = (node: Node<T>) => distances.has(node) ? distances.get(node) || 0 : Infinity;
+  const previous = new Map<Node<T>, Node<T>>();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const queue = ds.queue.priority<Node<T>>((a, b) => comparator.numbers(distances.get(a)!, distances.get(b)!));
+  const queue = ds.queue.priority<Node<T>>((a, b) => comparator.numbers(getDistance(a), getDistance(b)));
 
-  for (const node of reachable(start)) {
-    distances.set(node, Infinity);
-    previous.set(node, null);
-  }
   distances.set(start, 0);
 
   let current: Node<T> | undefined = undefined;
 
   queue.push(start);
   while (queue.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    current = queue.pop()!;
+    current = queue.pop();
     if (current === end) {
       break;
     }
     for (const neighbor of current.edges) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const distance = distances.get(current)! + 1;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (distance < distances.get(neighbor)!) {
+      const distance = getDistance(current) + 1;
+      if (distance < getDistance(neighbor)) {
         distances.set(neighbor, distance);
         previous.set(neighbor, current);
         queue.push(neighbor);
@@ -45,14 +39,22 @@ export function dijkstra<T>(start: Node<T>, end: Node<T>): Array<Node<T>> | null
     return null;
   }
   const path: Array<Node<T>> = [];
-  while (current !== start) {
-    path.push(current);
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    current = previous.get(current)!;
-  }
   path.push(current);
+  do {
+    current = previous.get(current);
+    if (current) {
+      path.push(current);
+    }
+  } while (current && current !== start);
 
   return array.reverse(path);
+}
+
+export function node<T>(value: T): Node<T> {
+  return {
+    edges: [],
+    value: value,
+  };
 }
 
 export function reachable<T>(start: Node<T>): Set<Node<T>> {
