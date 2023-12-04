@@ -75,7 +75,7 @@ export async function fetchProblemAnswer(year: number, day: number, part: 1 | 2)
   return matchedAnswers.map((code) => code.split('>')[1])[part - 1];
 }
 
-export function parse<Result>(inputData: string, dataSplitter: string, dataMapper: DataMapper<Result>, dataFilter: (data: string) => boolean = Boolean): Array<Result> {
+export function parse<Result>(inputData: string, dataSplitter: string | RegExp, dataMapper: DataMapper<Result>, dataFilter: (data: string) => boolean = Boolean): Array<Result> {
   return inputData.split(dataSplitter)
     .filter((data) => dataFilter(data))
     .map((data) => dataMapper(data));
@@ -85,5 +85,5 @@ parse.split = {
   character: "",
   group: "\n\n",
   line: "\n",
-  space: " ",
+  space: /\s+/,
 };

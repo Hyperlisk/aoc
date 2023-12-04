@@ -13,9 +13,7 @@ function solve(lines: string[][]) {
   let cards = lines.length;
   const muls: number[] = [];
   lines.forEach(([lineWinning, lineMine]) => {
-    const winning = new Set(lineWinning.split(/\s+/));
-    const mine = new Set(lineMine.split(/\s+/));
-    const winners = (Array.from(mine.values()).filter((value) => winning.has(value)));
+    const winners = array.intersection(lineWinning.split(/\s+/), lineMine.split(/\s+/));
     const mul = 1 + (muls.shift() || 0);
     if (winners.length) {
       cards += mul * winners.length;
