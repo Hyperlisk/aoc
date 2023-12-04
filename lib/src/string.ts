@@ -23,3 +23,8 @@ export function chunk<N extends number>(input: string, chunkSize: N, options?: C
   }
   return result;
 }
+
+export const is = {
+  digit: (s: string) => /^\d$/.test(s),
+  digits: (s: string) => /^\d+$/.test(s),
+};
