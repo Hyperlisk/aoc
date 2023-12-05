@@ -1,5 +1,4 @@
 
-import * as comparator from "./comparator.js";
 import * as ds from "./ds.js";
 import * as graph from "./graph.js";
 import * as point from "./point.js";
@@ -69,7 +68,7 @@ export type GridNode<T> = graph.Node<{
 }>;
 
 export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPoint[]): ds.MapND<[number, number], GridNode<T>> {
-  const result = ds.mapND<[number, number], GridNode<T>>(([colA, rowA], [colB, rowB]) => comparator.numbers(colA, colB) || comparator.numbers(rowA, rowB));
+  const result = ds.mapND<[number, number], GridNode<T>>();
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
       const node = graph.node({

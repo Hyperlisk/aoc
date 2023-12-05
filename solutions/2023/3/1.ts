@@ -19,9 +19,7 @@ function solve(lines: string[][]) {
     row: number;
     value: number;
   };
-  const numberMap = ds.mapND<[number, number], PartNumber>(([rowA, colA], [rowB, colB]) => {
-    return comparator.numbers(rowA, rowB) || comparator.numbers(colA, colB);
-  });
+  const numberMap = ds.mapND<[number, number], PartNumber>();
   type Part = [row: number, col: number];
   const partList: Part[] = [];
   lines.forEach((line, rowIdx) => {

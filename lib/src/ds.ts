@@ -9,7 +9,7 @@ export type MapND<KK extends unknown[], V> = {
   set: (keys: KK, value: V) => MapND<KK, V>;
 }
 
-export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator<KK>): MapND<KK, V> {
+function _mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator<KK>): MapND<KK, V> {
   const savedKeys: Array<KK> = [];
   const savedValues: Array<V> = [];
   const getSavedKeysIndex = (keys: KK): number | null => {
@@ -63,6 +63,49 @@ export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comp
     },
   };
 }
+
+_mapND.genericCompareKeys = function mapNDGenericCompareKeys<KK extends unknown[]>(keysA: KK, keysB: KK): comparator.ComparatorResult {
+  let result: comparator.ComparatorResult | null = null;
+  for (let i = 0;i < keysA.length;i++) {
+    const a = keysA[i];
+    const b = keysB[i];
+    const typeofA = typeof a;
+    const typeofB = typeof b;
+    if (typeofA === 'bigint' && typeofB === 'bigint') {
+      result = comparator.bigints(a as bigint, b as bigint);
+      if (result) {
+        return result;
+      }
+    }
+    if (typeofA === 'number' && typeofB === 'number') {
+      result = comparator.numbers(a as number, b as number);
+      if (result) {
+        return result;
+      }
+    }
+    if (typeofA === 'string' && typeofB === 'string') {
+      result = comparator.strings(a as string, b as string);
+      if (result) {
+        return result;
+      }
+    }
+    if (Array.isArray(a) && Array.isArray(b)) {
+      result = _mapND.genericCompareKeys(a, b);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  if (result === null) {
+    throw new Error(`Mapped key types do not align or are not handled (object, etc).\n\nkeysA: ${JSON.stringify(keysA, null, 2)}\n\nkeysB: ${JSON.stringify(keysB, null, 2)}`);
+  }
+  return result;
+};
+
+export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator<KK> = _mapND.genericCompareKeys): MapND<KK, V> {
+  return _mapND(compareKeys);
+}
+
 
 type Queue<T> = {
   length: number;
