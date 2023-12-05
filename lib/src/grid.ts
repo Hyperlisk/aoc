@@ -162,7 +162,7 @@ type NeighborOffset = {
 
 type NeighborKind = 'all' | 'adjacent' | 'diagonal';
 
-export function neighbors(from: GridPoint, size: { cols: number, rows: number }, which: NeighborKind): Array<GridPoint> {
+export function neighbors(which: NeighborKind, from: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
   const offsets: Array<NeighborOffset> = [];
   if (which !== 'diagonal') {
     // 'all' or 'adjacent'
@@ -209,7 +209,7 @@ export function neighbors(from: GridPoint, size: { cols: number, rows: number },
         // Out of bounds, negative index.
         return false;
       }
-      if (col >= size.cols || row >= size.rows) {
+      if (size && (col >= size.cols || row >= size.rows)) {
         // Out of bounds, too high index.
         return false;
       }
@@ -217,14 +217,14 @@ export function neighbors(from: GridPoint, size: { cols: number, rows: number },
     });
 }
 
-neighbors.adjacent = function neighborsAdjacent(point: GridPoint, size: { cols: number, rows: number }): Array<GridPoint> {
-  return neighbors(point, size, 'adjacent');
+neighbors.adjacent = function neighborsAdjacent(point: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
+  return neighbors('adjacent', point, size);
 };
 
-neighbors.all = function neighborsAll(point: GridPoint, size: { cols: number, rows: number }): Array<GridPoint> {
-  return neighbors(point, size, 'all');
+neighbors.all = function neighborsAll(point: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
+  return neighbors('all', point, size);
 };
 
-neighbors.diagonal = function neighborsDiagonal(point: GridPoint, size: { cols: number, rows: number }): Array<GridPoint> {
-  return neighbors(point, size, 'diagonal');
+neighbors.diagonal = function neighborsDiagonal(point: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
+  return neighbors('diagonal', point, size);
 };

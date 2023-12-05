@@ -56,7 +56,7 @@ function solve(lines: string[][]) {
   // log.write('Found', partList.length, 'parts');
   partList.forEach(([partRow, partCol]) => {
     // log.write([partRow, partCol], lines[partRow][partCol]);
-    grid.neighbors.all(grid.at(partCol, partRow), { rows: lines.length, cols: lines[0].length }).forEach((adjacent) => {
+    grid.neighbors.all(grid.at(partCol, partRow)).forEach((adjacent) => {
       const partNumber = numberMap.get([adjacent.row, adjacent.col]);
       // log.write('Checking ', [adjacent.row, adjacent.col], ', neighbor for', [partRow, partCol], ':', partNumber);
       if (partNumber === undefined || countedParts.has(partNumber.id)) {
