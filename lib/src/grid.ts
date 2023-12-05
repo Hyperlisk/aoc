@@ -6,9 +6,12 @@ import * as point from "./point.js";
 
 export type GridPoint = point.AbstractPoint<'col', 'row'>;
 
-export function at(col: number, row: number): GridPoint {
+export function at(row: number, col: number): GridPoint {
   return point.of(col, row, 'col', 'row');
 }
+at.point = function atPoint(point: point.Point) {
+  return at(point.y, point.x);
+};
 
 type GridBox = {
   getEnd(): GridPoint;
@@ -43,17 +46,17 @@ export function box(origin: GridPoint = at(0, 0)): GridBox {
     include(other: GridPoint) {
       const startCmp = point.compare(other, start);
       if (startCmp.x === -1) {
-        start = at(other.col, start.row);
+        start = at(start.row, other.col);
       }
       if (startCmp.y === -1) {
-        start = at(start.col, other.row);
+        start = at(other.row, start.col);
       }
       const endCmp = point.compare(other, end);
       if (endCmp.x === 1) {
-        end = at(other.col, end.row);
+        end = at(end.row, other.col);
       }
       if (endCmp.y === 1) {
-        end = at(end.col, other.row);
+        end = at(other.row, end.col);
       }
       return startCmp.x === -1 || startCmp.y === -1 || endCmp.x === 1 || endCmp.y === 1;
     },
@@ -70,7 +73,7 @@ export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPo
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
       const node = graph.node({
-        gridSource: at(col, row),
+        gridSource: at(row, col),
         gridValue: grid[row][col],
       });
       result.set([row, col], node);
@@ -78,7 +81,7 @@ export function nodes<T>(grid: T[][], getNeighbors: (point: GridPoint) => GridPo
   }
   for (let row = 0; row < grid.length; row++) {
     for (let col = 0; col < grid[row].length; col++) {
-      const neighbors = getNeighbors(at(col, row));
+      const neighbors = getNeighbors(at(row, col));
       for (const neighbor of neighbors) {
         const neighborNode = result.get([neighbor.row, neighbor.col]);
         if (neighborNode) {
@@ -142,16 +145,16 @@ export function navigator(start: GridPoint, step: GridNavigatorFn) {
 
 navigator.step = {
   down(current: GridPoint): GridPoint {
-    return at(current.col, current.row + 1);
+    return at(current.row + 1, current.col);
   },
   left(current: GridPoint): GridPoint {
-    return at(current.col - 1, current.row);
+    return at(current.row, current.col - 1);
   },
   right(current: GridPoint): GridPoint {
-    return at(current.col + 1, current.row);
+    return at(current.row, current.col + 1);
   },
   up(current: GridPoint): GridPoint {
-    return at(current.col, current.row - 1);
+    return at(current.row - 1, current.col);
   },
 };
 
@@ -203,7 +206,7 @@ export function neighbors(which: NeighborKind, from: GridPoint, size?: { cols: n
     });
   }
   return offsets
-    .map(({ colOffset, rowOffset }) => at(from.col + colOffset, from.row + rowOffset))
+    .map(({ colOffset, rowOffset }) => at(from.row + rowOffset, from.col + colOffset))
     .filter(({ col, row }) => {
       if (col < 0 || row < 0) {
         // Out of bounds, negative index.

@@ -34,10 +34,10 @@ function getScenicScore(input: InputType, row: number, col: number) {
     return result;
   }
 
-  const scoreLeft = count(grid.navigator(grid.at(col - 1, row), grid.navigator.step.left));
-  const scoreDown = count(grid.navigator(grid.at(col, row + 1), grid.navigator.step.down));
-  const scoreUp = count(grid.navigator(grid.at(col, row - 1), grid.navigator.step.up));
-  const scoreRight = count(grid.navigator(grid.at(col + 1, row), grid.navigator.step.right));
+  const scoreLeft = count(grid.navigator(grid.at(row, col - 1), grid.navigator.step.left));
+  const scoreDown = count(grid.navigator(grid.at(row + 1, col), grid.navigator.step.down));
+  const scoreUp = count(grid.navigator(grid.at(row - 1, col), grid.navigator.step.up));
+  const scoreRight = count(grid.navigator(grid.at(row, col + 1), grid.navigator.step.right));
 
   return scoreLeft * scoreDown * scoreUp * scoreRight;
 }

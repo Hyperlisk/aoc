@@ -34,9 +34,9 @@ function solve(input: InputType) {
   }
 
   const settled = new point.set();
-  const settledBoundingBox = grid.box(grid.at(500, 0));
+  const settledBoundingBox = grid.box(grid.at(0, 500));
   input.forEach((points) => {
-    let current = grid.at(points[0].x, points[0].y);
+    let current = grid.at.point(points[0]);
     array.view(points, 1)
       .forEach((waypoint) => {
         grid.navigator(current, makeStepTowards(waypoint))
@@ -48,7 +48,7 @@ function solve(input: InputType) {
               return undefined;
             },
           );
-        current = grid.at(waypoint.x, waypoint.y);
+        current = grid.at.point(waypoint);
       });
   });
   
@@ -63,7 +63,7 @@ function solve(input: InputType) {
   };
 
   const moveSand = grid.navigator(
-    grid.at(500, 0),
+    grid.at(0, 500),
     (current) => {
       const below = grid.navigator.step.down(current);
       if (!settled.has(below)) {

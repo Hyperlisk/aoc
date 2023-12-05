@@ -29,14 +29,14 @@ function solve(input: InputType) {
   const minCoordinateValue = 0;
 
   const makeDiamondWalker = (origin: point.Point, radius: number) => {
-    const start = grid.at(origin.x - radius, origin.y);
+    const start = grid.at.point(point.at(origin.x - radius, origin.y));
     let offsetX = 1;
     let offsetY = 1;
     return {
       navigator: grid.navigator(
         start,
         (current) => {
-          const result = grid.at(current.col + offsetX, current.row + offsetY);
+          const result = grid.at(current.row + offsetY, current.col + offsetX);
           if (result.col === origin.x) {
             offsetY *= -1;
           }

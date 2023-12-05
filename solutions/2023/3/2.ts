@@ -62,7 +62,7 @@ function solve(lines: string[][]) {
     // log.write([partRow, partCol], lines[partRow][partCol]);
     const neighborPartNumbers: PartNumber[] = [];
     const countedParts = new Set<number>();
-    grid.neighbors.all(grid.at(partCol, partRow)).forEach((adjacent) => {
+    grid.neighbors.all(grid.at(partRow, partCol)).forEach((adjacent) => {
       const partNumber = numberMap.get([adjacent.row, adjacent.col]);
       // log.write('Checking ', [adjacent.row, adjacent.col], ', neighbor for', [partRow, partCol], ':', partNumber);
       if (partNumber === undefined || countedParts.has(partNumber.id)) {

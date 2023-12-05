@@ -19,22 +19,22 @@ function solve(input: InputType) {
   array.concat(
     // Top-Bottom Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator(grid.at(idx, 0), grid.navigator.step.down), numberOfRows),
+      (idx) => virtual.array(grid.navigator(grid.at(0, idx), grid.navigator.step.down), numberOfRows),
       numberOfColumns,
     ),
     // Bottom-Top Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator(grid.at(idx, numberOfRows - 1), grid.navigator.step.up), numberOfRows),
+      (idx) => virtual.array(grid.navigator(grid.at(numberOfRows - 1, idx), grid.navigator.step.up), numberOfRows),
       numberOfColumns,
     ),
     // Left-Right Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator(grid.at(0, idx), grid.navigator.step.right), numberOfColumns),
+      (idx) => virtual.array(grid.navigator(grid.at(idx, 0), grid.navigator.step.right), numberOfColumns),
       numberOfColumns,
     ),
     // Right-Left Coordinates
     virtual.array(
-      (idx) => virtual.array(grid.navigator(grid.at(numberOfColumns - 1, idx), grid.navigator.step.left), numberOfColumns),
+      (idx) => virtual.array(grid.navigator(grid.at(idx, numberOfColumns - 1), grid.navigator.step.left), numberOfColumns),
       numberOfColumns,
     ),
   )
