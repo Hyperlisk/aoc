@@ -42,7 +42,7 @@ const loggedStacks: Set<string> = new Set();
 
 export function array<T>(generator: (index: number) => T | undefined, length: number, options?: { cache?: Map<string, T | undefined> | boolean }): Array<T> {
   const actualOptions = {
-    cache: true,
+    cache: false,
     ...options,
   };
   const cache = actualOptions.cache === false

@@ -8,6 +8,7 @@ type Instruction = [/* amount */ number, /* from */ number, /* to */ number];
 
 const [stackData, instructionData] = input.parse(inputData, input.parse.split.group, String);
 const stacks: Array<Stack> =
+array.realize(
   array.zip(
     ...input.parse(
       stackData,
@@ -15,9 +16,10 @@ const stacks: Array<Stack> =
       (stackLine) => string.chunk(stackLine, 3, { gap: 1 }),
     ),
   )
-    .map(
-      (stack) => array.realize((idx) => stack[idx].replace(/[^A-Z]/g, ''), stack.length).filter(Boolean)
-    );
+)
+  .map(
+    (stack) => array.realize((idx) => stack[idx].replace(/[^A-Z]/g, ''), stack.length).filter(Boolean)
+  );
 const instructions: Array<Instruction> = input.parse(
   instructionData,
   input.parse.split.line,
