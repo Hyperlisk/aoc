@@ -119,31 +119,9 @@ _mapND.genericCompareKeys = function mapNDGenericCompareKeys<KK extends unknown[
   for (let i = 0;i < keysA.length;i++) {
     const a = keysA[i];
     const b = keysB[i];
-    const typeofA = typeof a;
-    const typeofB = typeof b;
-    if (typeofA === 'bigint' && typeofB === 'bigint') {
-      result = comparator.bigints(a as bigint, b as bigint);
-      if (result) {
-        return result;
-      }
-    }
-    if (typeofA === 'number' && typeofB === 'number') {
-      result = comparator.numbers(a as number, b as number);
-      if (result) {
-        return result;
-      }
-    }
-    if (typeofA === 'string' && typeofB === 'string') {
-      result = comparator.strings(a as string, b as string);
-      if (result) {
-        return result;
-      }
-    }
-    if (Array.isArray(a) && Array.isArray(b)) {
-      result = _mapND.genericCompareKeys(a, b);
-      if (result) {
-        return result;
-      }
+    result = comparator.generic(a, b);
+    if (result) {
+      return result;
     }
   }
   if (result === null) {

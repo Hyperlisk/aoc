@@ -134,8 +134,8 @@ export function reverse<T>(input: Array<T>): Array<T> {
   return virtual.array((idx) => input[input.length - idx - 1], input.length);
 }
 
-export function sorted<T>(input: Array<T>, comparator?: comparator.Comparator<T>): Array<T> {
-  return input.sort(comparator);
+export function sorted<T>(input: Array<T>, cmp: comparator.Comparator<T> = comparator.generic): Array<T> {
+  return input.sort(cmp);
 }
 
 sorted.slice = function sortedSlice<T>(input: Array<T>, comparator: comparator.Comparator<T>): Array<T> {

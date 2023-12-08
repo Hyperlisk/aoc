@@ -25,3 +25,30 @@ export function strings(a: string, b: string): ComparatorResult {
 }
 
 strings.descending = reversed(strings);
+
+export function generic(a: unknown, b: unknown): ComparatorResult {
+  const typeofA = typeof a;
+  const typeofB = typeof b;
+  if (typeofA === 'bigint' && typeofB === 'bigint') {
+    return bigints(a as bigint, b as bigint);
+  }
+  if (typeofA === 'number' && typeofB === 'number') {
+    return numbers(a as number, b as number);
+  }
+  if (typeofA === 'string' && typeofB === 'string') {
+    return strings(a as string, b as string);
+  }
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      throw new Error('Can not compare different length arrays.');
+    }
+    for (let i = 0;i < a.length;i++) {
+      const result = generic(a[i], b[i]);
+      if (result) {
+        return result;
+      }
+    }
+    return 0;
+  }
+  throw new Error(`Types do not align or are not handled (object, etc).\n\na: ${JSON.stringify(a, null, 2)}\n\nb: ${JSON.stringify(b, null, 2)}`);
+}
