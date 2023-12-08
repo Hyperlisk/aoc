@@ -60,6 +60,78 @@ export function chunk<T, N extends number>(input: Array<T>, chunkSize: N): Array
   return result;
 }
 
+
+type CountResult<T=unknown> = {
+  byItem: Map<T, number>;
+  byCount: Map<number, Set<T>>;
+  max: {
+    count: number;
+    items: Set<T>;
+  },
+  min: {
+    count: number;
+    items: Set<T>;
+  },
+};
+
+export function count<A>(input: A[]): CountResult<A> {
+  const EMPTY_SET = new Set<A>();
+  const seen = new Map<A, number>();
+  const counts: Map<number, Set<A>> = new Map([[0, new Set()]]);
+  let max = 0;
+  let min = 0;
+  for(let i = 0;i < input.length;i++) {
+    const item = input[i];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const currentCount = seen.has(item) ? seen.get(item)! : 0;
+    const currentCounts = counts.get(currentCount) || EMPTY_SET;
+    if (currentCounts) {
+      currentCounts.delete(item);
+    }
+
+    const newCount = currentCount + 1;
+    if (!counts.has(newCount)) {
+      counts.set(newCount, new Set());
+    }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const newCounts = counts.get(newCount)!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    newCounts.add(item);
+
+    if (currentCounts.size === 0) {
+      if (currentCount === min) {
+        min = newCount;
+      }
+      // No need to keep it around
+      counts.delete(currentCount);
+    }
+    if (newCounts.size === 1) {
+      if (newCount > max) {
+        max = newCount;
+      }
+      if (newCount < min) {
+        min = newCount;
+      }
+    }
+
+    seen.set(item, newCount);
+  }
+  return {
+    byItem: seen,
+    byCount: counts,
+    max: {
+      count: max,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      items: counts.get(max)!,
+    },
+    min: {
+      count: min,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      items: counts.get(min)!,
+    },
+  };
+}
+
 export function fill<T>(element: T, length: number) {
   return virtual.array(() => element, length);
 }

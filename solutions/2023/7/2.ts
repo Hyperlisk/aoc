@@ -1,6 +1,6 @@
 
 
-import { comparator, ds, input, log } from "@Hyperlisk/aoc-lib";
+import { array, comparator, ds, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2023, 7);
 const data = input.parse(
@@ -15,19 +15,16 @@ const CARDS = ds.Enum('J23456789TQKA');
 
 function solve(games: [string, string, number][]) {
   games.forEach((game) => {
-    const counts: Record<string, number> = Object.create(null);
-    const [cards] = game;
-    let maxCount = 0;
-    [].forEach.call(cards, (c) => {
-      counts[c] = (counts[c] | 0) + 1;
-      if (counts[c] > maxCount && c !== 'J') {
-        maxCount = counts[c];
-      }
-    });
+    const cards = game[0].split('');
+    const counts = array.count(cards);
+    const countsWithoutJ = array.count(cards.filter((c) => c !== 'J'));
+
     // Set strength
-    let keyCount = Object.keys(counts).length;
-    if ('J' in counts) {
-      maxCount += counts.J;
+    let keyCount = counts.byItem.size;
+    let maxCount = countsWithoutJ.max.count;
+    if (counts.byItem.has('J')) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      maxCount += counts.byItem.get('J')!;
       keyCount -= 1;
     }
     if (maxCount === 5) {

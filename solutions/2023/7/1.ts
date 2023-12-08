@@ -1,6 +1,6 @@
 
 
-import { comparator, ds, input, log } from "@Hyperlisk/aoc-lib";
+import { array, comparator, ds, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2023, 7);
 const data = input.parse(
@@ -15,27 +15,20 @@ const CARDS = ds.Enum('23456789TJQKA');
 
 function solve(games: [string, string, number][]) {
   games.forEach((game) => {
-    const counts: Record<string, number> = Object.create(null);
-    const [cards] = game;
-    let maxCount = 0;
-    [].forEach.call(cards, (c) => {
-      counts[c] = (counts[c] | 0) + 1;
-      if (counts[c] > maxCount) {
-        maxCount = counts[c];
-      }
-    });
+    const cards = game[0].split('');
+    const counts = array.count(cards);
     // Set strength
-    if (maxCount === 5) {
+    if (counts.max.count === 5) {
       game[2] = 6;
-    } else if (maxCount === 4) {
+    } else if (counts.max.count === 4) {
       game[2] = 5;
-    } else if (maxCount === 3 && Object.keys(counts).length === 2) {
+    } else if (counts.max.count === 3 && counts.byItem.size === 2) {
       game[2] = 4;
-    } else if (maxCount === 3) {
+    } else if (counts.max.count === 3) {
       game[2] = 3;
-    } else if (maxCount === 2 && Object.keys(counts).length === 3) {
+    } else if (counts.max.count === 2 && counts.byItem.size === 3) {
       game[2] = 2;
-    } else if (maxCount === 2 && Object.keys(counts).length === 4) {
+    } else if (counts.max.count === 2 && counts.byItem.size === 4) {
       game[2] = 1;
     } else {
       game[2] = 0;
