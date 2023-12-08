@@ -1,6 +1,6 @@
 
 
-import { comparator, input, log } from "@Hyperlisk/aoc-lib";
+import { comparator, ds, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2023, 7);
 const data = input.parse(
@@ -11,21 +11,7 @@ const data = input.parse(
       .parse(line, input.parse.split.space, String)
 );
 
-const CARD_VALUES: Record<string, number> = {
-  '2': 2,
-  '3': 3,
-  '4': 4,
-  '5': 5,
-  '6': 6,
-  '7': 7,
-  '8': 8,
-  '9': 9,
-  'T': 10,
-  'J': 1,
-  'Q': 12,
-  'K': 13,
-  'A': 14,
-};
+const CARDS = ds.Enum('J23456789TQKA');
 
 function solve(games: [string, string, number][]) {
   games.forEach((game) => {
@@ -66,7 +52,7 @@ function solve(games: [string, string, number][]) {
       return strengthCmp;
     }
     for (let i = 0;i < handA.length;i++) {
-      const cardCmp = comparator.numbers(CARD_VALUES[handA[i]], CARD_VALUES[handB[i]]);
+      const cardCmp = comparator.numbers(CARDS.value(handA[i]), CARDS.value(handB[i]));
       if (cardCmp) {
         return cardCmp;
       }

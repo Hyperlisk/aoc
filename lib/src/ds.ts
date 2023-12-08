@@ -2,6 +2,56 @@
 import * as array from "./array.js";
 import * as comparator from "./comparator.js";
 
+
+type EnumResult = {
+  [name: string]: number;
+} & {
+  name(value: number): string;
+  value(name: string): number;
+}
+
+export function Enum(names: string | (string | [string, number])[]): EnumResult {
+  const generated = typeof names === 'string';
+  if (typeof names === 'string') {
+    const newNames: string[] = [];
+    for (let i = 0;i < names.length;i++) {
+      newNames.push(`_${names.charAt(i).toUpperCase()}`);
+    }
+    names = newNames;
+  }
+
+  let value = 1;
+  const _nameToValue: { [name: string]: number; } = {};
+  const _valueToName: Record<number, string> = {};
+  names.forEach((name) => {
+    if (typeof name !== 'string') {
+      [name, value] = name;
+    }
+    name = name.toUpperCase();
+    _nameToValue[name] = value;
+    _valueToName[value] = name;
+    value += 1;
+  });
+  const mixin = {
+    name(value: number) {
+      if (generated) {
+        return _valueToName[value].substring(1);
+      } else {
+        return _valueToName[value];
+      }
+    },
+    value(name: string) {
+      if (generated) {
+        return _nameToValue[`_${name}`];
+      } else {
+        return _nameToValue[name];
+      }
+    },
+  };
+  return Object.assign(mixin, _nameToValue);
+}
+
+
 export type MapND<KK extends unknown[], V> = {
   delete: (keys: KK) => boolean;
   get: (keys: KK) => V | undefined;
