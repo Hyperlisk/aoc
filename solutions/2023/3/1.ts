@@ -1,66 +1,45 @@
 
 
-import { array, comparator, ds, grid, input, log, string } from "@Hyperlisk/aoc-lib";
+import { ds, grid, input, log } from "@Hyperlisk/aoc-lib";
 
 const inputData = await input.fetchProblemInput(2023, 3);
-const data = input.parse(
+const DATA = input.parse(
   inputData,
   input.parse.split.line,
   (line) => input.parse(line, input.parse.split.character, String)
 );
 
 
-function solve(lines: string[][]) {
+function solve(data: typeof DATA) {
   let partNumberId = 0;
   type PartNumber = {
     id: number;
-    colStart: number;
-    colEnd: number;
-    row: number;
     value: number;
   };
+  const items = grid.identify(data, {
+    partNumbers: /\d/,
+    parts: /[^.\d]/,
+  });
   const numberMap = ds.mapND<[number, number], PartNumber>();
-  type Part = [row: number, col: number];
-  const partList: Part[] = [];
-  lines.forEach((line, rowIdx) => {
-    let n = 0;
-    let nStart = 0;
-    line.forEach((char, colIdx) => {
-      if (string.is.digit(char)) {
-        n = 10 * n + parseInt(char, 10);
-        const partNumber: PartNumber = {
-          id: partNumberId++,
-          colStart: nStart,
-          colEnd: colIdx + 1,
-          row: rowIdx,
-          value: n,
-        };
-        array.range(partNumber.colStart, partNumber.colEnd).forEach((col) => {
-          // log.write('Setting', [rowIdx, col], 'to', partNumber);
-          numberMap.set([rowIdx, col], partNumber);
-        });
-      } else {
-        nStart = colIdx + 1;
-        n = 0;
-        if (char !== '.') {
-          partList.push([rowIdx, colIdx]);
-        }
-      }
+  items.partNumbers?.forEach((partNumberInfo) => {
+    const partNumber: PartNumber = {
+      id: partNumberId++,
+      value: Number(partNumberInfo.joined),
+    };
+    partNumberInfo.coords.values().forEach(([rowIdx, colIdx]) => {
+      numberMap.set([rowIdx, colIdx], partNumber);
     });
   });
   
   const countedParts = new Set<number>();
   let sum = 0;
-  // log.write('Found', partList.length, 'parts');
-  partList.forEach(([partRow, partCol]) => {
-    // log.write([partRow, partCol], lines[partRow][partCol]);
+  items.parts?.forEach((part) => {
+    const [partRow, partCol] = part.coords.values()[0];
     grid.neighbors.all(grid.at(partRow, partCol)).forEach((adjacent) => {
       const partNumber = numberMap.get([adjacent.row, adjacent.col]);
-      // log.write('Checking ', [adjacent.row, adjacent.col], ', neighbor for', [partRow, partCol], ':', partNumber);
       if (partNumber === undefined || countedParts.has(partNumber.id)) {
         return;
       }
-      // log.write('Adding ', partNumber.value, 'to sum');
       sum += partNumber.value;
       countedParts.add(partNumber.id);
     });
@@ -68,5 +47,5 @@ function solve(lines: string[][]) {
   return sum;
 }
 
-const solution = solve(data);
+const solution = solve(DATA);
 log.write(solution);

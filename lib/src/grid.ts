@@ -62,6 +62,74 @@ export function box(origin: GridPoint = at(0, 0)): GridBox {
   };
 }
 
+type IdentifiedRegion = {
+  bounds: GridBox;
+  coords: ds.SetND<[GridPoint['row'], GridPoint['col']]>;
+  items: string[];
+  joined: string;
+}
+export function identify<O extends { [key: string]: string | RegExp }>(grid: string[][], types: O): { [K in keyof O]?: IdentifiedRegion[] } {
+  const found: [type: string, set: ds.SetND<[row: number, col: number]>][] = [];
+  const typeNames = Object.keys(types).filter((key) => Object.hasOwnProperty.call(types, key));
+  const typeRxs: Record<string, RegExp> = {};
+  typeNames.forEach((typeName) => {
+    const rxVal = types[typeName];
+    typeRxs[typeName] = typeof rxVal === 'string' ? new RegExp(rxVal) : rxVal;
+  });
+  grid.forEach((row, rowIdx) => {
+    let current: ds.SetND<[GridPoint['row'], GridPoint['col']]> = ds.setND();
+    let currentRx = /^$/;
+    let currentType = "";
+    row.forEach((cell, colIdx) => {
+      if (currentType) {
+        if (currentRx.test(cell)) {
+          current.add([rowIdx, colIdx]);
+          return;
+        } else {
+          found.push([currentType, current]);
+          current = ds.setND();
+          currentType = "";
+        }
+      }
+      for (const typeName of typeNames) {
+        const rx = typeRxs[typeName];
+        if (rx.test(cell)) {
+          current.add([rowIdx, colIdx]);
+          currentRx = rx;
+          currentType = typeName;
+          return;
+        }
+      }
+    });
+    if (currentType) {
+      found.push([currentType, current]);
+    }
+  });
+
+  const result: { [K in keyof O]?: IdentifiedRegion[] } = {};
+  for (const [type, set] of found) {
+    if (!(type in result)) {
+      result[type as keyof O] = [];
+    }
+    const coords = set.values();
+    const [ [firstRowIdx, firstColIdx] ] = coords;
+    const bounds = box(at(firstRowIdx, firstColIdx));
+    const items: string[] = [];
+    coords.forEach(([rowIdx, colIdx]) => {
+      bounds.include(at(rowIdx, colIdx));
+      items.push(grid[rowIdx][colIdx]);
+    });
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    result[type as keyof O]!.push({
+      bounds: bounds,
+      coords: set,
+      items: items,
+      joined: items.join(''),
+    });
+  }
+  return result;
+}
+
 export type GridNode<T> = graph.Node<{
   gridSource: GridPoint;
   gridValue: T,

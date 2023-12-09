@@ -135,7 +135,61 @@ export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comp
 }
 
 
-type Queue<T> = {
+export type SetND<V extends unknown[]> = {
+  add: (value: V) => boolean;
+  delete: (value: V) => boolean;
+  has: (value: V) => boolean;
+  values: () => V[];
+}
+
+export function setND<V extends unknown[]>(cmp: comparator.Comparator<V> = comparator.generic): SetND<V> {
+  const savedValues: V[] = [];
+  const getSavedValuesIndex = (value: V): number | null => {
+    if (savedValues.length === 0) {
+      // Nothing is saved.
+      return null;
+    }
+    if (cmp(value, savedValues[0]) === -1) {
+      // The key we are looking for would be to the left of the first value, so it is not saved.
+      return null;
+    }
+    if (cmp(value, savedValues[savedValues.length - 1]) === 1) {
+      // The key we are looking for would be to the right of the last value, so it is not saved.
+      return null;
+    }
+    const savedIndex = array.binary(savedValues, value, cmp);
+    return cmp(value, savedValues[savedIndex]) === 0 ? savedIndex : null;
+  };
+  return {
+    add(value: V) {
+      const savedIndex = getSavedValuesIndex(value);
+      if (savedIndex === null) {
+        const insertIndex = array.binary(savedValues, value, cmp);
+        savedValues.splice(insertIndex, 0, value);
+      }
+      return savedIndex === null;
+    },
+    delete(value: V): boolean {
+      const savedIndex = getSavedValuesIndex(value);
+      if (savedIndex === null) {
+        return false;
+      }
+
+      savedValues.splice(savedIndex, 1);
+      return true;
+    },
+    has(value: V): boolean {
+      const savedIndex = getSavedValuesIndex(value);
+      return savedIndex !== null;
+    },
+    values(): V[] {
+      return savedValues.slice(0);
+    },
+  };
+}
+
+
+export type Queue<T> = {
   length: number;
   pop(): T;
   push(item: T): number;
@@ -167,11 +221,11 @@ export function queue<T>(): Queue<T> {
   };
 }
 
-function queuePriority<T>(comparator: comparator.Comparator<T>): Queue<T> {
+function queuePriority<T>(cmp: comparator.Comparator<T> = comparator.generic<T>): Queue<T> {
   const items: Array<T> = [];
 
   function push(item: T) {
-    return array.binary.insert<T>(items, item, comparator);
+    return array.binary.insert<T>(items, item, cmp);
   }
 
   function pop() {

@@ -26,17 +26,23 @@ export function strings(a: string, b: string): ComparatorResult {
 
 strings.descending = reversed(strings);
 
-export function generic(a: unknown, b: unknown): ComparatorResult {
+export function generic<T=unknown>(a: T, b: T): ComparatorResult {
   const typeofA = typeof a;
   const typeofB = typeof b;
+  if (a === undefined || b === undefined || a === null || b === null) {
+    if (a === b) {
+      return 0;
+    }
+    throw new Error(`Can not compare anything to: ${a ? b : a}`);
+  }
   if (typeofA === 'bigint' && typeofB === 'bigint') {
     return bigints(a as bigint, b as bigint);
   }
   if (typeofA === 'number' && typeofB === 'number') {
     return numbers(a as number, b as number);
   }
-  if (typeofA === 'string' && typeofB === 'string') {
-    return strings(a as string, b as string);
+  if (typeofA === 'string' && typeofB === 'string' || a.constructor === RegExp && b.constructor === RegExp) {
+    return strings(String(a), String(b));
   }
   if (Array.isArray(a) && Array.isArray(b)) {
     if (a.length !== b.length) {

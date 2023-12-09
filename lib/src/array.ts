@@ -27,8 +27,8 @@ export function binary<T>(input: Array<T>, item: T, comparator: comparator.Compa
   return low;
 }
 
-binary.insert = function binaryInsert<T>(input: Array<T>, item: T, comparator: comparator.Comparator<T>) {
-  const insertIndex = binary(input, item, comparator);
+binary.insert = function binaryInsert<T>(input: Array<T>, item: T, cmp: comparator.Comparator<T> = comparator.generic<T>) {
+  const insertIndex = binary(input, item, cmp);
   input.splice(insertIndex, 0, item);
   return insertIndex;
 };
