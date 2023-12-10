@@ -9,7 +9,7 @@ type StringifyOptions = {
   replacer?: (key: string, value: unknown) => unknown;
 };
 
-export function stringify(obj: unknown, options: StringifyOptions) {
+export function stringify(obj: unknown, options: StringifyOptions = {}) {
   const excludeKeys = new Set(options.excludeKeys);
   const indent = options.indent;
   const replacer = options.replacer || ((key: string, value: unknown) => value);
