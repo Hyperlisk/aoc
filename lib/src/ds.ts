@@ -3,53 +3,55 @@ import * as array from "./array.js";
 import * as comparator from "./comparator.js";
 
 
-type EnumResult = {
-  [name: string]: number;
-} & {
+type EnumResultKeys<T extends string> = {
+  [key in T]: number;
+};
+type EnumResult<T extends string> = EnumResultKeys<T> & {
   name(value: number): string;
   value(name: string): number;
 }
 
-export function Enum(names: string | (string | [string, number])[]): EnumResult {
-  const generated = typeof names === 'string';
-  if (typeof names === 'string') {
-    const newNames: string[] = [];
-    for (let i = 0;i < names.length;i++) {
-      newNames.push(`_${names.charAt(i).toUpperCase()}`);
-    }
-    names = newNames;
-  }
-
+export function Enum<const T extends string>(...names: (T | [T, number])[]): EnumResult<T> {
   let value = 1;
-  const _nameToValue: { [name: string]: number; } = {};
+  const _nameToValue: EnumResultKeys<T> = Object.create(null) as EnumResultKeys<T>;
   const _valueToName: Record<number, string> = {};
   names.forEach((name) => {
     if (typeof name !== 'string') {
-      [name, value] = name;
+      const [nameT, newValue] = name;
+      value = newValue;
+      _nameToValue[nameT] = value;
+      _valueToName[value] = nameT;
+    } else {
+      _nameToValue[name] = value;
+      _valueToName[value] = name;
+      value += 1;
     }
-    name = name.toUpperCase();
-    _nameToValue[name] = value;
-    _valueToName[value] = name;
-    value += 1;
   });
   const mixin = {
     name(value: number) {
-      if (generated) {
-        return _valueToName[value].substring(1);
-      } else {
-        return _valueToName[value];
-      }
+      return _valueToName[value];
     },
     value(name: string) {
-      if (generated) {
-        return _nameToValue[`_${name}`];
-      } else {
-        return _nameToValue[name];
-      }
+      return (_nameToValue as Record<string, number>)[name];
     },
   };
   return Object.assign(mixin, _nameToValue);
 }
+
+type Split<S extends string> =
+    string extends S ? string[] :
+    S extends '' ? [] :
+    S extends `${infer T}${infer U}` ? [T, ...Split<U>] : [S];
+
+type SplitValues<S extends string> =
+    string extends S ? string :
+    S extends '' ? never :
+    S extends `${infer T}${infer U}` ? T | SplitValues<U> : S;
+
+Enum.fromString = function EnumFromString<const T extends string>(input: T): EnumResult<SplitValues<T>> {
+  const names: Split<T> = input.split('') as Split<T>;
+  return Enum(...names);
+};
 
 
 export type MapND<KK extends unknown[], V> = {

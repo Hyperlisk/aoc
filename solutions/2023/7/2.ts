@@ -11,7 +11,7 @@ const data = input.parse(
       .parse(line, input.parse.split.space, String)
 );
 
-const CARDS = ds.Enum('J23456789TQKA');
+const CARDS = ds.Enum.fromString('J23456789TQKA');
 
 function solve(games: [string, string, number][]) {
   games.forEach((game) => {

@@ -11,7 +11,7 @@ const data = input.parse(
       .parse(line, input.parse.split.character, String)
 );
 
-const DIR = ds.Enum(['LEFT', 'RIGHT', 'UP', 'DOWN']);
+const DIR = ds.Enum('LEFT', 'RIGHT', 'UP', 'DOWN');
 
 
 function solve(g: string[][]) {
