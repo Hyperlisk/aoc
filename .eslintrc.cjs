@@ -31,6 +31,7 @@ module.exports = {
     "comma-dangle": ["error", "always-multiline"],
     "indent": ["error", 2, { "SwitchCase": 1 }],
     "newline-per-chained-call": SEVERITY.ERROR,
+    "no-constant-condition": SEVERITY.WARN,
     "semi": SEVERITY.ERROR,
     "space-infix-ops": SEVERITY.ERROR,
   },
