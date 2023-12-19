@@ -31,6 +31,19 @@ export function stringify(obj: unknown, options: StringifyOptions = {}) {
     if (replaced instanceof Set) {
       return ['S', Array.from(replaced)];
     }
+    if (replaced === Infinity) {
+      return 'Infinity';
+    }
+    if (replaced === -Infinity) {
+      return '-Infinity';
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    if (replaced && typeof replaced === 'object' && typeof replaced.__aoc_type === 'string' && replaced.__aoc_type === 'setND') {
+      if ('values' in replaced && typeof replaced.values === 'function') {
+        return ['SND', replaced.values()];
+      }
+    }
     return replaced;
   }, indent);
 }

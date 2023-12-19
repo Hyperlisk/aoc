@@ -225,14 +225,16 @@ navigator.step = {
   },
 };
 
-type NeighborOffset = {
-  colOffset: -1 | 0 | 1;
-  rowOffset: -1 | 0 | 1;
+type Offset<T extends number=number> = {
+  colOffset: T;
+  rowOffset: T;
 };
+
+type NeighborOffset = Offset<-1 | 0 | 1>;
 
 type NeighborKind = 'all' | 'adjacent' | 'diagonal';
 
-export function neighbors(which: NeighborKind, from: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
+export function neighbors(which: NeighborKind, from: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint & { offset: NeighborOffset }> {
   const offsets: Array<NeighborOffset> = [];
   if (which !== 'diagonal') {
     // 'all' or 'adjacent'
@@ -273,7 +275,12 @@ export function neighbors(which: NeighborKind, from: GridPoint, size?: { cols: n
     });
   }
   return offsets
-    .map(({ colOffset, rowOffset }) => at(from.row + rowOffset, from.col + colOffset))
+    .map(({ colOffset, rowOffset }) =>
+      Object.assign(
+        at(from.row + rowOffset, from.col + colOffset),
+        { offset: { colOffset, rowOffset } },
+      )
+    )
     .filter(({ col, row }) => {
       if (col < 0 || row < 0) {
         // Out of bounds, negative index.
@@ -287,14 +294,21 @@ export function neighbors(which: NeighborKind, from: GridPoint, size?: { cols: n
     });
 }
 
-neighbors.adjacent = function neighborsAdjacent(point: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
+neighbors.adjacent = function neighborsAdjacent(point: GridPoint, size?: { cols: number, rows: number }) {
   return neighbors('adjacent', point, size);
 };
 
-neighbors.all = function neighborsAll(point: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
+neighbors.all = function neighborsAll(point: GridPoint, size?: { cols: number, rows: number }) {
   return neighbors('all', point, size);
 };
 
-neighbors.diagonal = function neighborsDiagonal(point: GridPoint, size?: { cols: number, rows: number }): Array<GridPoint> {
+neighbors.diagonal = function neighborsDiagonal(point: GridPoint, size?: { cols: number, rows: number }) {
   return neighbors('diagonal', point, size);
 };
+
+export function offset(a: GridPoint, b: GridPoint): Offset {
+  return {
+    rowOffset: b.row - a.row,
+    colOffset: b.col - a.col,
+  };
+}

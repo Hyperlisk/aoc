@@ -135,10 +135,13 @@ export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comp
 }
 
 
-export type SetND<V extends unknown[]> = {
+export type SetND<V> = {
   add: (value: V) => boolean;
+  clone: () => SetND<V>;
   delete: (value: V) => boolean;
   has: (value: V) => boolean;
+  matching: (value: V) => V | null;
+  size: number;
   values: () => V[];
 }
 
@@ -161,13 +164,25 @@ export function setND<V extends unknown[]>(cmp: comparator.Comparator<V> = compa
     return cmp(value, savedValues[savedIndex]) === 0 ? savedIndex : null;
   };
   return {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    __aoc_type: 'setND',
     add(value: V) {
       const savedIndex = getSavedValuesIndex(value);
       if (savedIndex === null) {
         const insertIndex = array.binary(savedValues, value, cmp);
         savedValues.splice(insertIndex, 0, value);
+      } else {
+        savedValues[savedIndex] = value;
       }
       return savedIndex === null;
+    },
+    clone(): SetND<V> {
+      const result = setND<V>(cmp);
+      savedValues.forEach((value) => {
+        result.add(value);
+      });
+      return result;
     },
     delete(value: V): boolean {
       const savedIndex = getSavedValuesIndex(value);
@@ -178,9 +193,19 @@ export function setND<V extends unknown[]>(cmp: comparator.Comparator<V> = compa
       savedValues.splice(savedIndex, 1);
       return true;
     },
+    matching(value: V): V | null {
+      const savedIndex = getSavedValuesIndex(value);
+      if (savedIndex) {
+        return savedValues[savedIndex];
+      }
+      return null;
+    },
     has(value: V): boolean {
       const savedIndex = getSavedValuesIndex(value);
       return savedIndex !== null;
+    },
+    get size() {
+      return savedValues.length;
     },
     values(): V[] {
       return savedValues.slice(0);
