@@ -27,8 +27,8 @@ export function binary<T>(input: Array<T>, item: T, compare: comparator.Comparat
   return low;
 }
 
-binary.insert = function binaryInsert<T>(input: Array<T>, item: T, cmp: comparator.Comparator<T> = comparator.generic<T>) {
-  const insertIndex = binary(input, item, cmp);
+binary.insert = function binaryInsert<T>(input: Array<T>, item: T, compare: comparator.Comparator<T> = comparator.generic<T>) {
+  const insertIndex = binary(input, item, compare);
   input.splice(insertIndex, 0, item);
   return insertIndex;
 };
@@ -206,8 +206,8 @@ export function reverse<T>(input: Array<T>): Array<T> {
   return virtual.array((idx) => input[input.length - idx - 1], input.length);
 }
 
-export function sorted<T>(input: Array<T>, cmp: comparator.Comparator<T> = comparator.generic): Array<T> {
-  return input.sort(cmp);
+export function sorted<T>(input: Array<T>, compare: comparator.Comparator<T> = comparator.generic<T>): Array<T> {
+  return input.sort(compare);
 }
 
 sorted.slice = function sortedSlice<T>(input: Array<T>, comparator: comparator.Comparator<T>): Array<T> {

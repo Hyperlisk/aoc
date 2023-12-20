@@ -147,23 +147,23 @@ export type SetND<V> = {
   values: () => V[];
 }
 
-export function setND<V extends unknown[]>(cmp: comparator.Comparator<V> = comparator.generic): SetND<V> {
+export function setND<V extends unknown[]>(compare: comparator.Comparator<V> = comparator.generic): SetND<V> {
   const savedValues: V[] = [];
   const getSavedValuesIndex = (value: V): number | null => {
     if (savedValues.length === 0) {
       // Nothing is saved.
       return null;
     }
-    if (cmp(value, savedValues[0]) === -1) {
+    if (compare(value, savedValues[0]) === -1) {
       // The key we are looking for would be to the left of the first value, so it is not saved.
       return null;
     }
-    if (cmp(value, savedValues[savedValues.length - 1]) === 1) {
+    if (compare(value, savedValues[savedValues.length - 1]) === 1) {
       // The key we are looking for would be to the right of the last value, so it is not saved.
       return null;
     }
-    const savedIndex = array.binary(savedValues, value, cmp);
-    return cmp(value, savedValues[savedIndex]) === 0 ? savedIndex : null;
+    const savedIndex = array.binary(savedValues, value, compare);
+    return compare(value, savedValues[savedIndex]) === 0 ? savedIndex : null;
   };
   return {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -172,7 +172,7 @@ export function setND<V extends unknown[]>(cmp: comparator.Comparator<V> = compa
     add(value: V) {
       const savedIndex = getSavedValuesIndex(value);
       if (savedIndex === null) {
-        const insertIndex = array.binary(savedValues, value, cmp);
+        const insertIndex = array.binary(savedValues, value, compare);
         savedValues.splice(insertIndex, 0, value);
       } else {
         savedValues[savedIndex] = value;
@@ -180,7 +180,7 @@ export function setND<V extends unknown[]>(cmp: comparator.Comparator<V> = compa
       return savedIndex === null;
     },
     clone(): SetND<V> {
-      const result = setND<V>(cmp);
+      const result = setND<V>(compare);
       savedValues.forEach((value) => {
         result.add(value);
       });
@@ -248,11 +248,11 @@ export function queue<T>(): Queue<T> {
   };
 }
 
-function queuePriority<T>(cmp: comparator.Comparator<T> = comparator.generic<T>): Queue<T> {
+function queuePriority<T>(compare: comparator.Comparator<T> = comparator.generic<T>): Queue<T> {
   const items: Array<T> = [];
 
   function push(item: T) {
-    return array.binary.insert<T>(items, item, cmp);
+    return array.binary.insert<T>(items, item, compare);
   }
 
   function pop() {
