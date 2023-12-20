@@ -312,3 +312,8 @@ export function offset(a: GridPoint, b: GridPoint): Offset {
     colOffset: b.col - a.col,
   };
 }
+
+export function taxi(a: GridPoint, b: GridPoint) {
+  const { colOffset, rowOffset } = offset(a, b);
+  return Math.abs(colOffset) + Math.abs(rowOffset);
+}

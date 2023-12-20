@@ -2,13 +2,13 @@
 import * as comparator from "./comparator.js";
 import * as virtual from "./virtual.js";
 
-export function binary<T>(input: Array<T>, item: T, comparator: comparator.Comparator<T>) {
+export function binary<T>(input: Array<T>, item: T, compare: comparator.Comparator<T> = comparator.generic<T>) {
   let low = 0;
   let high = input.length - 1;
 
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
-    const cmp = comparator(item, input[mid]);
+    const cmp = compare(item, input[mid]);
 
     switch (cmp) {
       case -1:
