@@ -116,23 +116,7 @@ function _mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator
   };
 }
 
-_mapND.genericCompareKeys = function mapNDGenericCompareKeys<KK extends unknown[]>(keysA: KK, keysB: KK): comparator.ComparatorResult {
-  let result: comparator.ComparatorResult | null = null;
-  for (let i = 0;i < keysA.length;i++) {
-    const a = keysA[i];
-    const b = keysB[i];
-    result = comparator.generic(a, b);
-    if (result) {
-      return result;
-    }
-  }
-  if (result === null) {
-    throw new Error(`Mapped key types do not align or are not handled (object, etc).\n\nkeysA: ${JSON.stringify(keysA, null, 2)}\n\nkeysB: ${JSON.stringify(keysB, null, 2)}`);
-  }
-  return result;
-};
-
-export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator<KK> = _mapND.genericCompareKeys): MapND<KK, V> {
+export function mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator<KK> = comparator.generic): MapND<KK, V> {
   return _mapND(compareKeys);
 }
 
