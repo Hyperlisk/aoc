@@ -6,7 +6,7 @@ export function memoize<A extends Array<unknown>, R>(fn: (...args: A) => R, args
   const memo = ds.mapND<A, R>(argsComparator);
   return function memoized(...args: A): R {
     const cached = memo.get(args);
-    if (cached) {
+    if (cached !== undefined) {
       return cached;
     }
     const result = fn(...args);

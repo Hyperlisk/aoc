@@ -132,6 +132,14 @@ export function count<A>(input: A[]): CountResult<A> {
   };
 }
 
+export function duplicate<T>(input: T[], times: number): T[] {
+  const dupes: T[][] = [];
+  for (let i = 1;i < times;i++) {
+    dupes.push(input);
+  }
+  return input.concat(...dupes);
+}
+
 export function fill<T>(element: T, length: number) {
   return virtual.array(() => element, length);
 }
@@ -225,6 +233,13 @@ export function sum(input: Array<number>): number {
     result += input[i];
   }
   return result;
+}
+
+export function head<T>(input: Array<T>, lastIndex: number) {
+  if (lastIndex < 0) {
+    return input.slice(0, input.length + lastIndex);
+  }
+  return input.slice(0, lastIndex);
 }
 
 export function view<T>(input: Array<T>, start: number, end?: number) {
