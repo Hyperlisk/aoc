@@ -188,23 +188,29 @@ export function navigator(start: GridPoint, step: GridNavigatorFn) {
     return path.pop();
   };
 
-  takeStep.while = function takeStepWhile(condition: true | ((next: GridPoint, path: Array<GridNavigatorResult>) => boolean), callback?: (current: GridPoint, path: Array<GridNavigatorResult>) => true | undefined): void {
+  takeStep.path = function takeStepPath(): GridNavigatorResult[] {
+    return path.slice(0, pathIndex + 1);
+  };
+
+  takeStep.while = function takeStepWhile(condition: true | ((next: GridPoint, path: Array<GridNavigatorResult>) => boolean), callback?: (current: GridPoint, path: Array<GridNavigatorResult>) => true | undefined) {
+    const taken: GridNavigatorResult[] = [];
     do {
-      takeStep();
+      taken.push(takeStep());
       const current = path[pathIndex];
       if (current === undefined) {
-        return;
+        return taken;
       }
       if (condition !== true && !condition(current, path)) {
-        return;
+        return taken;
       }
       if (callback) {
         const result = callback(current, path);
         if (result !== undefined) {
-          return;
+          return taken;
         }
       }
     } while (path[pathIndex]);
+    return taken;
   };
 
   return takeStep;
