@@ -181,7 +181,7 @@ export function setND<V extends unknown[]>(compare: comparator.Comparator<V> = c
     },
     matching(value: V): V | null {
       const savedIndex = getSavedValuesIndex(value);
-      if (savedIndex) {
+      if (savedIndex !== null) {
         return savedValues[savedIndex];
       }
       return null;
