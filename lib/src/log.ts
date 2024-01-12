@@ -19,14 +19,8 @@ export function stringify(obj: unknown, options: StringifyOptions = {}) {
       return undefined;
     }
     const replaced = replacer(key, item);
-    if (replaced instanceof Map) {
-      const map = {};
-      for (const [key, value] of replaced.entries()) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        map[key] = value;
-      }
-      return ['M', replaced.size, map];
+    if (Array.isArray(replaced)) {
+      return replaced;
     }
     if (replaced instanceof Set) {
       return ['S', Array.from(replaced)];
@@ -37,11 +31,18 @@ export function stringify(obj: unknown, options: StringifyOptions = {}) {
     if (replaced === -Infinity) {
       return '-Infinity';
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    if (replaced && typeof replaced === 'object' && typeof replaced.__aoc_type === 'string' && replaced.__aoc_type === 'setND') {
+    if (replaced && typeof replaced === 'object') {
+      if ('entries' in replaced && typeof replaced.entries === 'function') {
+        const size = 'size' in replaced ? replaced.size : '?';
+        const map: Record<string, unknown> = {};
+        for (const [key, value] of replaced.entries()) {
+          map[key] = value;
+        }
+        return ['.entries()', size, map];
+      }
       if ('values' in replaced && typeof replaced.values === 'function') {
-        return ['SND', replaced.values()];
+        const size = 'size' in replaced ? replaced.size : '?';
+        return ['.values()', size, (replaced.values())];
       }
     }
     return replaced;

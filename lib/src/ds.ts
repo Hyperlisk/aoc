@@ -56,9 +56,12 @@ Enum.fromString = function EnumFromString<const T extends string>(input: T): Enu
 
 export type MapND<KK extends unknown[], V> = {
   delete: (keys: KK) => boolean;
+  entries: () => [key: KK, value: V][];
   get: (keys: KK) => V | undefined;
   has: (keys: KK) => boolean;
   set: (keys: KK, value: V) => MapND<KK, V>;
+  readonly size: number;
+  values: () => V[];
 }
 
 function _mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator<KK>): MapND<KK, V> {
@@ -91,6 +94,13 @@ function _mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator
       savedValues.splice(savedIndex, 1);
       return true;
     },
+    entries(): [key: KK, value: V][] {
+      const result: [key: KK, value: V][] = [];
+      for (let i = 0;i < savedKeys.length;i++) {
+        result.push([savedKeys[i], savedValues[i]]);
+      }
+      return result;
+    },
     get(keys: KK): V | undefined {
       const savedIndex = getSavedKeysIndex(keys);
       if (savedIndex === null) {
@@ -112,6 +122,12 @@ function _mapND<KK extends Array<unknown>, V>(compareKeys: comparator.Comparator
         savedValues.splice(insertIndex, 0, value);
       }
       return this;
+    },
+    get size() {
+      return savedKeys.length;
+    },
+    values(): V[] {
+      return savedValues.slice(0);
     },
   };
 }
