@@ -127,81 +127,79 @@ export type SetND<V> = {
   delete: (value: V) => boolean;
   has: (value: V) => boolean;
   matching: (value: V) => V | null;
-  size: number;
+  readonly size: number;
   values: () => V[];
 }
 
 export function setND<V extends unknown[]>(compare: comparator.Comparator<V> = comparator.generic): SetND<V> {
-  const savedValues: V[] = [];
-  const getSavedValuesIndex = (value: V): number | null => {
-    if (savedValues.length === 0) {
+  function instance(savedValues: V[] = []) {
+    const getSavedValuesIndex = (value: V): number | null => {
+      if (savedValues.length === 0) {
       // Nothing is saved.
-      return null;
-    }
-    if (compare(value, savedValues[0]) === -1) {
-      // The key we are looking for would be to the left of the first value, so it is not saved.
-      return null;
-    }
-    if (compare(value, savedValues[savedValues.length - 1]) === 1) {
-      // The key we are looking for would be to the right of the last value, so it is not saved.
-      return null;
-    }
-    const savedIndex = array.binary(savedValues, value, compare);
-    return compare(value, savedValues[savedIndex]) === 0 ? savedIndex : null;
-  };
-  return {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    __aoc_type: 'setND',
-    add(value: V) {
-      const savedIndex = getSavedValuesIndex(value);
-      if (savedIndex === null) {
-        const insertIndex = array.binary(savedValues, value, compare);
-        savedValues.splice(insertIndex, 0, value);
-      } else {
-        savedValues[savedIndex] = value;
+        return null;
       }
-      return savedIndex === null;
-    },
-    clone(): SetND<V> {
-      const result = setND<V>(compare);
-      savedValues.forEach((value) => {
-        result.add(value);
-      });
-      return result;
-    },
-    delete(value: V): boolean {
-      const savedIndex = getSavedValuesIndex(value);
-      if (savedIndex === null) {
-        return false;
+      // if (compare(value, savedValues[0]) === -1) {
+      //   // The key we are looking for would be to the left of the first value, so it is not saved.
+      //   return null;
+      // }
+      // if (compare(value, savedValues[savedValues.length - 1]) === 1) {
+      //   // The key we are looking for would be to the right of the last value, so it is not saved.
+      //   return null;
+      // }
+      const savedIndex = array.binary(savedValues, value, compare);
+      if (savedIndex >= savedValues.length) {
+        return null;
       }
+      return compare(value, savedValues[savedIndex]) === 0 ? savedIndex : null;
+    };
+    return {
+      add(value: V) {
+        const savedIndex = getSavedValuesIndex(value);
+        if (savedIndex === null) {
+          const insertIndex = array.binary(savedValues, value, compare);
+          savedValues.splice(insertIndex, 0, value);
+        } else {
+          savedValues[savedIndex] = value;
+        }
+        return savedIndex === null;
+      },
+      clone(): SetND<V> {
+        return instance(savedValues.slice(0));
+      },
+      delete(value: V): boolean {
+        const savedIndex = getSavedValuesIndex(value);
+        if (savedIndex === null) {
+          return false;
+        }
 
-      savedValues.splice(savedIndex, 1);
-      return true;
-    },
-    matching(value: V): V | null {
-      const savedIndex = getSavedValuesIndex(value);
-      if (savedIndex !== null) {
-        return savedValues[savedIndex];
-      }
-      return null;
-    },
-    has(value: V): boolean {
-      const savedIndex = getSavedValuesIndex(value);
-      return savedIndex !== null;
-    },
-    get size() {
-      return savedValues.length;
-    },
-    values(): V[] {
-      return savedValues.slice(0);
-    },
-  };
+        savedValues.splice(savedIndex, 1);
+        return true;
+      },
+      matching(value: V): V | null {
+        const savedIndex = getSavedValuesIndex(value);
+        if (savedIndex !== null) {
+          return savedValues[savedIndex];
+        }
+        return null;
+      },
+      has(value: V): boolean {
+        const savedIndex = getSavedValuesIndex(value);
+        return savedIndex !== null;
+      },
+      get size() {
+        return savedValues.length;
+      },
+      values(): V[] {
+        return savedValues.slice(0);
+      },
+    };
+  }
+  return instance();
 }
 
 
 export type Queue<T> = {
-  length: number;
+  readonly length: number;
   pop(): T;
   push(item: T): number;
 };
@@ -243,7 +241,6 @@ function queuePriority<T>(compare: comparator.Comparator<T> = comparator.generic
     if (items.length === 0) {
       throw new Error("Nothing to pop!");
     }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return items.shift()!;
   }
 

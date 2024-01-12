@@ -5,6 +5,10 @@ import * as point from "./point.js";
 
 export type GridPoint = point.AbstractPoint<'col', 'row'>;
 
+export const DIRECTIONS = ds.Enum('LEFT', 'RIGHT', 'UP', 'DOWN');
+export type DIR = typeof DIRECTIONS.LEFT | typeof DIRECTIONS.RIGHT | typeof DIRECTIONS.UP | typeof DIRECTIONS.DOWN;
+export type RC = [row: number, col: number];
+
 export function at(row: number, col: number): GridPoint {
   return point.of(col, row, 'col', 'row');
 }
@@ -228,6 +232,53 @@ navigator.step = {
   },
   up(current: GridPoint): GridPoint {
     return at(current.row - 1, current.col);
+  },
+};
+
+navigator.head = {
+  back(current: GridPoint, facing: DIR): GridPoint {
+    if (facing === DIRECTIONS.LEFT) {
+      return navigator.step.right(current);
+    } else if (facing === DIRECTIONS.RIGHT) {
+      return navigator.step.left(current);
+    } else if (facing === DIRECTIONS.UP) {
+      return navigator.step.down(current);
+    } else {
+      return navigator.step.up(current);
+    }
+  },
+  left(current: GridPoint, facing: DIR): GridPoint {
+    if (facing === DIRECTIONS.LEFT) {
+      return navigator.step.down(current);
+    } else if (facing === DIRECTIONS.RIGHT) {
+      return navigator.step.up(current);
+    } else if (facing === DIRECTIONS.UP) {
+      return navigator.step.left(current);
+    } else {
+      return navigator.step.right(current);
+    }
+  },
+  right(current: GridPoint, facing: DIR): GridPoint {
+    if (facing === DIRECTIONS.LEFT) {
+      return navigator.step.up(current);
+    } else if (facing === DIRECTIONS.RIGHT) {
+      return navigator.step.down(current);
+    } else if (facing === DIRECTIONS.UP) {
+      return navigator.step.right(current);
+    } else {
+      return navigator.step.left(current);
+    }
+  },
+  forward(current: GridPoint, facing: DIR): GridPoint {
+    if (facing === DIRECTIONS.LEFT) {
+      return navigator.step.left(current);
+    } else if (facing === DIRECTIONS.RIGHT) {
+      return navigator.step.right(current);
+    } else if (facing === DIRECTIONS.UP) {
+      return navigator.step.up(current);
+    } else {
+      return navigator.step.down(current);
+    }
   },
 };
 
